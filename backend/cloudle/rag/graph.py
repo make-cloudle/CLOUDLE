@@ -7,7 +7,7 @@ from typing import Any, TypedDict
 
 from langgraph.graph import END, START, StateGraph
 
-from cloudle.data.items import get_item
+from cloudle.data.items import CATEGORY_LABELS, get_item
 from cloudle.rag import prompts
 from cloudle.rag.collect import PURPOSE_KO
 from cloudle.rag.llm import LLMUnavailable, call_json
@@ -141,7 +141,7 @@ def _offline_generate(state: RagState, ev: list[dict]) -> dict:
     actions.append("거주지 지자체의 배출 기준을 함께 확인하세요.")
     return {
         "summary": f"{item.name('ko')}의 배출 분류는 '{item.recycling_category}'입니다. [근거 1]",
-        "basic_info": (f"분류 {item.category}, 재질 {', '.join(item.materials)}, "
+        "basic_info": (f"분류 {CATEGORY_LABELS[item.category]['ko']}, 재질 {', '.join(item.materials)}, "
                        f"배터리 {'내장' if item.has_battery else '없음'}. [근거 1]"),
         "reuse": _best(ev, KEYWORDS["reuse"]) or nf,
         "repair": _best(ev, KEYWORDS["repair"]) or nf,
