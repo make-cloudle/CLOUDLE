@@ -33,12 +33,14 @@ export function Cited({ text, onCite }: { text?: string; onCite: (n: number) => 
   return <>{parts}</>;
 }
 
-export function SourceList({ sources, active }: { sources: Evidence[]; active: number | null }) {
+export function SourceList({ sources, active, idPrefix = "src" }: {
+  sources: Evidence[]; active: number | null; idPrefix?: string;
+}) {
   const [open, setOpen] = useState<number | null>(null);
   return (
     <ol className="flex flex-col divide-y divide-line border-y border-line">
       {sources.map((s) => (
-        <li key={s.n} id={`src-${s.n}`} className={cx("py-3 transition-colors", active === s.n && "bg-accent-soft")}>
+        <li key={s.n} id={`${idPrefix}-${s.n}`} className={cx("py-3 transition-colors", active === s.n && "bg-accent-soft")}>
           <div className="flex items-start gap-3">
             <span className="mt-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-sm border border-accent text-[11px] font-semibold text-accent">{s.n}</span>
             <div className="min-w-0 flex-1">

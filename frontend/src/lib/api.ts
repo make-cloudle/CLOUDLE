@@ -175,3 +175,45 @@ export async function analyze(
   }
   throw new ApiError("incomplete", "stream ended");
 }
+
+/* ── Phase 4: 채팅 · 업로드 · 사진 인식 · 조건 탐색 ───────────────── */
+export type ChatMessage = { role: "user" | "assistant"; content: string; citations?: number[]; sources?: Evidence[] };
+
+export const chat = (item_id: string, question: string, lang: Lang) =>
+  request<{ answer: Answer; evidence: Evidence[]; engine: string; history: ChatMessage[] }>("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ item_id, question, lang }),
+  });
+
+export const chatHistory = (item_id: string) =>
+  request<{ history: ChatMessage[] }>(`/api/chat/${encodeURIComponent(item_id)}`);
+
+function form(file: Blob, name: string) {
+  const fd = new FormData();
+  fd.append("file", file, name);
+  return fd;
+}
+
+/** 문서는 이 세션의 근거로만 색인된다. */
+export const uploadDoc = (file: File) =>
+  request<{ name: string; chunks: number }>("/api/upload", { method: "POST", body: form(file, file.name) });
+
+export type VisionResult = { available: boolean; labels: string[]; item_id: string | null; condition?: string; message: string };
+
+/** 이미지는 서버에 저장되지 않고 인식에만 쓰인다. */
+export const identifyImage = (file: Blob, name: string) =>
+  request<VisionResult>("/api/vision", { method: "POST", body: form(file, name) });
+
+export type SearchResult = {
+  conditions: string[];
+  engine: string;
+  items: (ItemRef & { reason: string })[];
+};
+
+export const searchItems = (query: string) =>
+  request<SearchResult>("/api/search", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query }),
+  });
