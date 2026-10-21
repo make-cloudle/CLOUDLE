@@ -1,0 +1,32 @@
+[server]
+maxUploadSize = 5
+
+[client]
+toolbarMode = "minimal"
+
+[theme]
+font = "'IBM Plex Sans KR':https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap"
+headingFontWeights = [700, 600, 600, 600, 500, 500]
+baseRadius = "6px"
+buttonRadius = "6px"
+showWidgetBorder = true
+showSidebarBorder = true
+linkUnderline = false
+
+[theme.light]
+primaryColor = "#2F5D50"
+backgroundColor = "#F7F6F1"
+secondaryBackgroundColor = "#EEECE4"
+textColor = "#1F1F1C"
+borderColor = "#D8D5CA"
+linkColor = "#2F5D50"
+codeBackgroundColor = "#EEECE4"
+
+[theme.dark]
+primaryColor = "#3F7A68"
+backgroundColor = "#161714"
+secondaryBackgroundColor = "#1F201C"
+textColor = "#E7E5DD"
+borderColor = "#34352F"
+linkColor = "#A9CBBE"
+codeBackgroundColor = "#1F201C"
