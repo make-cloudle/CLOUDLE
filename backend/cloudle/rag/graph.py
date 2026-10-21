@@ -80,6 +80,13 @@ KEYWORDS = {
 }
 
 
+_INTENT = {
+    "repair": ("수리", "고장", "고치"),
+    "reuse": ("중고", "팔", "판매", "나눔", "기부", "재사용"),
+    "disposal": ("버리", "버려", "배출", "수거", "분리", "쓰레기"),
+}
+
+
 def _sentences(e: dict):
     for s in _SENT.split(e["text"].replace("\n", " ")):
         s = s.strip()
@@ -117,13 +124,21 @@ def _offline_generate(state: RagState, ev: list[dict]) -> dict:
     item = get_item(state["item_id"])
     nf = NOT_FOUND["ko"]
     if state.get("mode") != "analysis":
-        q = _bigrams(state.get("question", ""))
-        ranked = sorted(
-            ((len(q & _bigrams(s)), s, e["n"]) for e in ev if e["kind"] != "item_meta"
-             for s in _sentences(e)),
-            key=lambda x: -x[0],
-        )
-        picks = [f"{s} [근거 {n}]" for sc, s, n in ranked[:3] if sc > 1]
+        question = state.get("question", "")
+        q = _bigrams(question)
+        intents = [w for k, words in KEYWORDS.items() if any(x in question for x in _INTENT[k]) for w in words]
+        if not intents:
+            intents = list(KEYWORDS["disposal"])
+
+        def score(s: str, e: dict) -> float:
+            overlap = len(q & _bigrams(s))
+            intent = sum(w in s for w in intents)
+            source = 1.5 if e["kind"] in ("guide", "user_upload") else 0
+            return overlap + 2 * intent + source if overlap > 1 else 0
+
+        ranked = sorted(((score(s, e), s, e["n"]) for e in ev if e["kind"] != "item_meta"
+                         for s in _sentences(e)), key=lambda x: -x[0])
+        picks = [f"{s} [근거 {n}]" for sc, s, n in ranked[:3] if sc >= 3]
         if picks:
             picks.append(f"이 물건의 처리 안내: {item.disposal_hint} [근거 1]")
         return {"answer": " ".join(picks) or nf,
