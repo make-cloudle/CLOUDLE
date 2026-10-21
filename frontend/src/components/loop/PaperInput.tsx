@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { getItems, type ItemRef } from "@/lib/api";
 import { type DictKey, useT } from "@/lib/i18n";
 import { type Paper, useLoop } from "@/lib/loop";
 import { usePrefs } from "@/lib/prefs";
-import { IconImage, IconX } from "../ui/icons";
+import { IconX } from "../ui/icons";
+import { AttachmentBar, type AttachedPhoto } from "./Attachments";
 import { Tag, cx } from "../ui/primitives";
 
 export const PURPOSES: Paper["purpose"][] = ["all", "repair", "reuse", "disposal"];
@@ -17,7 +18,7 @@ export function PaperInput({ disabled, toolbar }: { disabled?: boolean; toolbar?
   const lang = usePrefs((s) => s.lang);
   const { paper, setPaper } = useLoop();
   const [items, setItems] = useState<ItemRef[]>([]);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const [notice, setNotice] = useState("");
 
   useEffect(() => {
     getItems().then((d) => setItems(d.items)).catch(() => setItems([]));
@@ -29,14 +30,15 @@ export function PaperInput({ disabled, toolbar }: { disabled?: boolean; toolbar?
     setPaper({ product_name: v, item_id: hit?.item_id ?? "", category: hit?.category ?? "" });
   };
 
-  const addImages = (files: FileList | null) => {
-    if (!files) return;
-    const next = [...paper.photos];
-    for (const f of Array.from(files).slice(0, 3 - next.length)) {
-      if (!f.type.startsWith("image/") || f.size > 5 * 1024 * 1024) continue;
-      next.push({ id: crypto.randomUUID(), url: URL.createObjectURL(f), name: f.name, labels: [] });
-    }
-    setPaper({ photos: next });
+  // 사진 인식으로 품목을 찾았고 이름이 비어 있으면 종이에 대신 적어 준다
+  const onPhoto = (p: AttachedPhoto) => {
+    const cur = useLoop.getState().paper;
+    const hit = p.vision?.item_id ? items.find((i) => i.item_id === p.vision!.item_id) : undefined;
+    setPaper({
+      photos: [...cur.photos, { id: p.id, url: p.url, name: p.name, labels: p.labels }],
+      ...(hit && !cur.product_name ? { product_name: hit.names[lang], item_id: hit.item_id, category: hit.category } : {}),
+      ...(p.vision?.condition && !cur.condition ? { condition: p.vision.condition } : {}),
+    });
   };
 
   return (
@@ -130,18 +132,17 @@ export function PaperInput({ disabled, toolbar }: { disabled?: boolean; toolbar?
         </div>
       )}
 
-      {/* 하단 도구 막대 */}
+      {/* 하단 도구 막대: 파일 · 사진 · 카메라 */}
       <div className="mt-3 flex flex-wrap items-center gap-1 border-t border-dashed border-line-strong pt-2">
-        <button
-          onClick={() => fileRef.current?.click()}
-          className="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-sm text-ink-2 hover:bg-surface-2 hover:text-ink"
-        >
-          <IconImage size={16} /> {t("attach_image")}
-        </button>
-        <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" multiple hidden
-          onChange={(e) => { addImages(e.target.files); e.target.value = ""; }} />
+        <AttachmentBar
+          photoLimitReached={paper.photos.length >= 3}
+          onPhoto={onPhoto}
+          onDoc={(d) => setPaper({ docs: [...useLoop.getState().paper.docs, d] })}
+          onError={setNotice}
+        />
         {toolbar}
       </div>
+      {notice && <p className="mt-1 text-xs text-ink-3" role="status">{notice}</p>}
     </div>
   );
 }

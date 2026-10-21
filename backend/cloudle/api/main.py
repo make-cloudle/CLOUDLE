@@ -10,21 +10,26 @@ import queue
 import threading
 from dataclasses import fields
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
+from cloudle.api.session import forget, guarded_session, session_id
 from cloudle.config import get_settings
 from cloudle.data.items import CATEGORY_LABELS, item_index
-from cloudle.rag.pipeline import Paper, UserFacingError, analyze
+from cloudle.rag import uploads, vision
+from cloudle.rag.chat import chat_store
+from cloudle.rag.pipeline import Paper, UserFacingError, analyze, ask
+from cloudle.rag.search import condition_search
 from cloudle.rag.store import evidence_collection, item_collection
 from cloudle.sources.environment import briefing
 from cloudle.sources.geo import get_country
 
 log = logging.getLogger("cloudle.api")
+LANGS = ("ko", "en", "ja", "zh")
 
-app = FastAPI(title="CLOUDLE API", version="0.1.0")
+app = FastAPI(title="CLOUDLE API", version="0.2.0")
 app.add_middleware(
     CORSMiddleware, allow_origins=get_settings().cors_origin_list, allow_credentials=False,
     allow_methods=["GET", "POST", "DELETE"], allow_headers=["*"],
@@ -38,6 +43,15 @@ async def hide_internal_errors(request: Request, exc: Exception):
     return JSONResponse(status_code=500, content={"code": "internal", "message": "잠시 후 다시 시도해 주세요."})
 
 
+def _user_error(e: UserFacingError, status: int = 422) -> HTTPException:
+    return HTTPException(status, detail={"code": e.code, "message": e.message, **e.extra})
+
+
+def _lang(v: str) -> str:
+    return v if v in LANGS else "ko"
+
+
+# ── 조회 ─────────────────────────────────────────────────────────────
 @app.get("/api/health")
 def health():
     s = get_settings()
@@ -55,13 +69,17 @@ def items():
     }
 
 
+@app.get("/api/country/{iso3}")
+def country(iso3: str, lang: str = "ko"):
+    c = get_country(iso3)
+    if not c:
+        raise HTTPException(404, detail={"code": "unknown_country", "message": "국가를 찾을 수 없어요."})
+    return briefing(c, _lang(lang))
+
+
+# ── 분석 (SSE) ───────────────────────────────────────────────────────
 class AnalyzeBody(BaseModel):
     paper: dict
-
-
-def _session(request: Request) -> str:
-    sid = request.headers.get("X-Session-Id", "")
-    return sid if sid.isalnum() and 8 <= len(sid) <= 64 else "anonymous"
 
 
 def _sse(event: str, data) -> str:
@@ -69,11 +87,11 @@ def _sse(event: str, data) -> str:
 
 
 @app.post("/api/analyze")
-def analyze_endpoint(body: AnalyzeBody, request: Request):
+def analyze_endpoint(body: AnalyzeBody, sid: str = Depends(guarded_session)):
     """종이 정보 → 분석. 수집·검색·생성 단계를 SSE 진행 이벤트로 보낸다 (F2012)."""
-    sid = _session(request)
     allowed = {f.name for f in fields(Paper)}
     paper = Paper(**{k: v for k, v in body.paper.items() if k in allowed})
+    paper.lang = _lang(paper.lang)
     q: queue.Queue = queue.Queue()
 
     def worker():
@@ -98,9 +116,68 @@ def analyze_endpoint(body: AnalyzeBody, request: Request):
                              headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
 
-@app.get("/api/country/{iso3}")
-def country(iso3: str, lang: str = "ko"):
-    c = get_country(iso3)
-    if not c:
-        raise HTTPException(404, detail={"code": "unknown_country", "message": "국가를 찾을 수 없어요."})
-    return briefing(c, lang if lang in ("ko", "en", "ja", "zh") else "ko")
+# ── 후속 질문 (F2009) ────────────────────────────────────────────────
+class ChatBody(BaseModel):
+    item_id: str
+    question: str = Field(max_length=1000)
+    lang: str = "ko"
+
+
+@app.post("/api/chat")
+def chat(body: ChatBody, sid: str = Depends(guarded_session)):
+    try:
+        return ask(body.item_id, body.question, sid, _lang(body.lang))
+    except UserFacingError as e:
+        raise _user_error(e) from e
+
+
+@app.get("/api/chat/{item_id}")
+def chat_history(item_id: str, sid: str = Depends(session_id)):
+    return {"history": chat_store.history(sid, item_id)}
+
+
+# ── 업로드 · 사진 인식 ───────────────────────────────────────────────
+async def _read_limited(file: UploadFile) -> bytes:
+    data = await file.read(uploads.MAX_BYTES + 1)
+    if len(data) > uploads.MAX_BYTES:
+        raise HTTPException(413, detail={"code": "too_large", "message": "파일은 5MB 이하만 올릴 수 있어요."})
+    return data
+
+
+@app.post("/api/upload")
+async def upload_doc(file: UploadFile = File(...), sid: str = Depends(guarded_session)):
+    """문서는 이 세션의 근거로만 쓰이고 세션 만료 시 삭제된다."""
+    data = await _read_limited(file)
+    try:
+        n = uploads.add_session_document(sid, file.filename or "document.txt", data)
+    except uploads.UploadRejected as e:
+        raise HTTPException(415, detail={"code": "rejected", "message": str(e)}) from e
+    return {"name": file.filename, "chunks": n}
+
+
+@app.post("/api/vision")
+async def vision_identify(file: UploadFile = File(...), sid: str = Depends(guarded_session)):
+    """이미지는 저장하지 않고 인식 호출에만 사용한다."""
+    data = await _read_limited(file)
+    try:
+        uploads.check_image(file.filename or "image.jpg", data)
+    except uploads.UploadRejected as e:
+        raise HTTPException(415, detail={"code": "rejected", "message": str(e)}) from e
+    return vision.identify(data, file.content_type or "image/jpeg")
+
+
+# ── 조건 탐색 (F2011) ────────────────────────────────────────────────
+class SearchBody(BaseModel):
+    query: str = Field(min_length=1, max_length=300)
+
+
+@app.post("/api/search")
+def search(body: SearchBody, sid: str = Depends(guarded_session)):
+    return condition_search(body.query)
+
+
+@app.delete("/api/session")
+def delete_session(sid: str = Depends(session_id)):
+    """사용자가 원하면 대화·업로드를 즉시 지운다."""
+    forget(sid)
+    return {"ok": True}

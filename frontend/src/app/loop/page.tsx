@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import * as THREE from "three";
 import { PaperInput } from "@/components/loop/PaperInput";
+import { ChatPanel } from "@/components/loop/ChatPanel";
 import { ResultCard } from "@/components/loop/ResultCard";
 import type { StageHandle } from "@/components/three/CrumpleStage";
 import { IconCheck } from "@/components/ui/icons";
@@ -273,9 +274,17 @@ export default function LoopPage() {
       </div>
 
       {phase === "opened" && result && (
-        <section aria-label="result" className="border-t border-line pt-6">
-          <ResultCard result={result} />
-        </section>
+        <>
+          <section aria-label="result" className="border-t border-line pt-6">
+            <ResultCard result={result} />
+          </section>
+          <div className="border-t border-line pt-6">
+            <ChatPanel key={result.item.item_id} itemId={result.item.item_id} itemName={result.item.names[lang]} />
+          </div>
+          <div>
+            <Button onClick={restart}>{t("restart")}</Button>
+          </div>
+        </>
       )}
     </div>
   );

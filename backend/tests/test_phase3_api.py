@@ -77,3 +77,57 @@ def test_analyze_errors_are_safe():
 def test_basic_endpoints(path):
     index_items()
     assert client.get(path).status_code == 200
+
+
+# ── Phase 4: 세션·요청 제한·채팅·업로드·탐색 ─────────────────────────────
+from cloudle.api.session import limiter  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _reset_limits():
+    limiter.reset()
+    yield
+    limiter.reset()
+
+
+def test_session_header_required():
+    r = client.post("/api/search", json={"query": "가구"})
+    assert r.status_code == 400 and r.json()["detail"]["code"] == "no_session"
+
+
+def test_rate_limit(monkeypatch):
+    index_items()
+    monkeypatch.setenv("RATE_LIMIT_PER_MIN", "3")
+    from cloudle.config import get_settings
+    get_settings.cache_clear()
+    codes = [client.post("/api/search", json={"query": "가구"}, headers=SID).status_code for _ in range(5)]
+    assert codes[:3] == [200, 200, 200] and codes[3] == 429
+
+
+def test_chat_upload_and_delete_session(monkeypatch):
+    fakes.install(monkeypatch, [])
+    index_items()
+    index_guides()
+    r = client.post("/api/upload", headers=SID,
+                    files={"file": ("dorm.txt", "기숙사 배터리 수거함은 1층에 있다. ".encode() * 5, "text/plain")})
+    assert r.status_code == 200 and r.json()["chunks"] >= 1
+    r = client.post("/api/chat", json={"item_id": "E001", "question": "기숙사 배터리 수거함 어디?"}, headers=SID)
+    assert r.status_code == 200
+    assert any(s["kind"] == "user_upload" for s in r.json()["evidence"])
+    assert client.get("/api/chat/E001", headers=SID).json()["history"]
+    assert client.delete("/api/session", headers=SID).json()["ok"]
+    assert client.get("/api/chat/E001", headers=SID).json()["history"] == []
+
+
+def test_upload_rejects_bad_type_and_vision_offline():
+    r = client.post("/api/upload", headers=SID, files={"file": ("x.exe", b"MZ" * 20, "application/octet-stream")})
+    assert r.status_code == 415
+    png = b"\x89PNG\r\n\x1a\n" + b"0" * 100
+    r = client.post("/api/vision", headers=SID, files={"file": ("a.png", png, "image/png")})
+    assert r.status_code == 200 and r.json()["available"] is False
+
+
+def test_chat_unknown_item():
+    index_items()
+    r = client.post("/api/chat", json={"item_id": "NOPE", "question": "?"}, headers=SID)
+    assert r.status_code == 422 and r.json()["detail"]["code"] == "unknown_item"
