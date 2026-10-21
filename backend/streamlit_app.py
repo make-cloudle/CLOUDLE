@@ -33,6 +33,7 @@ with st.sidebar:
 pages = st.navigation([
     st.Page("app_pages/analyze.py", title=t("nav_analyze"), icon=":material/edit_note:", default=True),
     st.Page("app_pages/explore.py", title=t("nav_explore"), icon=":material/manage_search:"),
+    st.Page("app_pages/earth.py", title=t("nav_earth"), icon=":material/public:"),
     st.Page("app_pages/status.py", title=t("nav_status"), icon=":material/database:"),
 ])
 
