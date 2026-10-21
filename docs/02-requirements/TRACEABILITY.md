@@ -45,4 +45,11 @@
 | C05 | `CrumpleStage.tsx` (정점 변형·드래그·투입) | ✅ |
 | C06 | `CrumpleStage.tsx::ResultCloud` · `ResultCard.tsx` | ✅ |
 | C07 | `Attachments.tsx` · `CameraCapture.tsx` · `lib/i18n.ts` · 다크 모드 | ✅ (사진 인식 🟡) |
+| C10 | `rag-service/sources/environment.py::global_sos` · `app/page.tsx` · `features/globe` | ✅ |
+| C11 | `features/cloud-lab/BinStage.tsx` (던지기 물리) · `app/bin/page.tsx` | ✅ |
+| C12 | `wb_series` · `features/compare/TrendChart.tsx` · `app/vs/page.tsx` | ✅ |
+| C13 | `rag/factcheck.py` · `app/detective/page.tsx` | 🟡 판정은 LLM 키 필요 |
+| C14 | `features/discovery/model.ts` · `app/book/page.tsx` | ✅ |
+| C15 | `rag/llm.py` (단계·예산·캐시) · `test_llm_budget_and_stages` | ✅ |
+| 게이트웨이 | `backend/api-gateway` (세션·요청 제한·캐시·SSE) · `test/gateway.spec.ts` | ✅ |
 | C08 | 업체 연결 — 인터페이스만 기획, 미구현 | ⏳ Could |

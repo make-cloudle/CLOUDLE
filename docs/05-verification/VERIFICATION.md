@@ -4,24 +4,24 @@
 
 **검증일** 2026-10-21 · **환경** Windows 11, Python 3.12, Node 24 · **모드** 오프라인(LLM 키 없음)
 
-## 1. 자동 테스트
+## 1. 자동 테스트 (v2: 3개 서비스)
 | 대상 | 명령 | 결과 |
 |---|---|---|
-| 백엔드 (RAG·API·Streamlit UI) | `cd backend && python -m pytest -q` | **41 passed** |
-| 프론트엔드 타입 | `cd frontend && npx tsc --noEmit` | 통과 |
-| 프론트엔드 린트·빌드 | `npm run lint && npm run build` | 통과 |
+| rag-service (RAG·API·Streamlit UI·토큰 예산) | `cd backend/rag-service && python -m pytest -q` | **44 passed** |
+| api-gateway (세션·요청 제한·캐시·SSE·오류 형식) | `cd backend/api-gateway && pnpm test` | **6 passed** |
+| frontend | `pnpm exec tsc --noEmit && pnpm lint && pnpm build` | 통과 (8개 화면) |
 
-테스트는 가짜 위키백과·임시 저장소로 돌아가 **네트워크·API 키 없이** 재현된다.
+테스트는 가짜 위키백과·가짜 엔진 포트로 돌아가 **네트워크·API 키 없이** 재현된다.
 
-## 2. 브라우저 시나리오 (Playwright 헤드리스 Chromium)
+## 2. 브라우저 시나리오 (Playwright 헤드리스, 3개 서비스 실제 기동)
 | 시나리오 | 결과 |
 |---|---|
-| 지구본 국가 클릭 → 실제 World Bank·NASA EONET·위키백과 브리핑 | ✅ |
-| 종이 작성 → **마우스로 문질러** 종이공 → 드래그·투입 → 확인 → 분석 → 구름 열기 → 결과 | ✅ |
-| 파일 업로드 · 카메라 캡처(가짜 장치) → 종이·3D 텍스처에 사진 부착 | ✅ |
-| 후속 질문이 업로드 문서를 근거로 인용 | ✅ |
-| 조건 탐색 → 카드 → 분석 화면 이동 · 모바일 · 일본어 · 다크 모드 | ✅ |
-| 콘솔 오류 | **0건** (하이드레이션·effect 버그 2건 발견 후 수정) |
+| Earth SOS: 전 세계 PM2.5 레이어(World Bank 2023, 244개 국가·지역) · 오염 상위 국가 · 자연현상 51건 | ✅ |
+| 나라 선택 → 핵심 지표만 조회 → "대기 오염은 왜?" → 위키백과 근거로 답 → 발견 노트 자동 저장 | ✅ |
+| Cloud Lab: 캔을 **마우스 플릭으로 던짐**(포물선 비행 확인) · 페트병 "대신 던져 줘" → 분석 → 구름 열기 → 결과·채팅 | ✅ |
+| Planet VS: 대한민국 vs 일본, 연도 슬라이더 2010 → 지표·차트 동기화 | ✅ |
+| Eco Detective: 주장 검토(오프라인이라 판정 보류 + 관련 문장) · 같은 주장은 캐시로 1초 이내 | ✅ |
+| 모바일·다크 모드, 콘솔 오류 | ✅ 0건 |
 
 ## 3. 비기능 요구사항
 | ID | 결과 | 근거 |
@@ -37,13 +37,13 @@
 ## 4. 화면
 | | |
 |---|---|
-| ![지구본](./screenshots/01-earth.png) | ![종이공](./screenshots/02-crumple-ball.png) |
-| ![결과 구름](./screenshots/03-cloud.png) | ![종이·카메라](./screenshots/05-paper-camera.png) |
-| ![결과·채팅](./screenshots/04-result-chat.png) | ![디자인 키트](./screenshots/08-design-kit.png) |
-| ![모바일 탐색](./screenshots/06-explore-mobile-ja.png) | ![모바일 다크](./screenshots/07-earth-mobile-dark.png) |
+| ![Earth SOS](./screenshots/01-earth-sos.png) | ![나라 질문](./screenshots/02-korea-ask.png) |
+| ![던지기](./screenshots/03-cloud-lab-throw.png) | ![구름](./screenshots/04-cloud-lab-ready.png) |
+| ![결과·채팅](./screenshots/05-result-chat.png) | ![국가 비교](./screenshots/06-planet-vs.png) |
+| ![발견 노트](./screenshots/07-discovery-book.png) | ![모바일](./screenshots/08-mobile-home.png) |
 
 ## 5. 미검증·제한 사항
-- **LLM 경로 미실행:** P1·P2·P3·사진 인식은 키가 없어 모의 응답 테스트만 했다. `.env`에 키를 넣으면 자동 전환된다.
+- **LLM 경로 미실행:** `backend/.env.local`의 키가 비어 있어 GMS 실호출(최종 답변·팩트체크 판정)은 모의 응답 테스트만 했다. `GMS_KEY`를 넣으면 자동 전환된다.
 - **오프라인 답변 품질:** 근거 문장 발췌 방식이라 문장이 매끄럽지 않고 한국어로만 나온다.
 - **폐기물 통계:** World Bank 카탈로그 요청 제한으로 CSV 미적재 → "조회 불가" 표시.
 - **OpenAQ 실시간 관측:** 키가 없어 미검증.
