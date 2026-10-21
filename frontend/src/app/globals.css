@@ -1,52 +1,67 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css");
 @import "tailwindcss";
 
-/* 다크 모드: <html data-theme="dark"> (시스템 설정은 인라인 스크립트가 반영) */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
-/* ── 디자인 토큰: 뮤트 톤 · 1px 보더 · 4–8px 라운드 · 그림자 없음 ── */
+/* ── CLOUDLE 디자인 토큰 ───────────────────────────────────────────── */
 :root {
-  --bg: #f7f6f1;
+  --bg: #faf9f6;
   --surface: #ffffff;
-  --surface-2: #eeece4;
-  --ink: #1f1f1c;
-  --ink-2: #5b5a53;
-  --ink-3: #8a887e;
-  --line: #d8d5ca;
-  --line-strong: #b9b5a7;
-  --accent: #2f5d50;
+  --surface-2: #f2f6fa;
+  --ink: #25354d;
+  --ink-2: #5a6a80;
+  --ink-3: #93a0b2;
+  --line: #e6ebf1;
+  --line-strong: #cfd8e3;
+  --sky: #78c8f8;
+  --sky-deep: #2f8fd0;
+  --sky-soft: #ddf2ff;
+  --mint: #bce8c8;
+  --mint-deep: #3e9a63;
+  --yellow: #ffe5a3;
+  --lavender: #dcd5ff;
+  --warn: #e9784f; /* 오염·경고 */
+  --warn-soft: #fde7dd;
+  --danger: #d64545;
+  --accent: #25354d;
   --accent-ink: #ffffff;
-  --accent-soft: #e3ebe6;
-  --sky: #6e8fa8;
-  --sky-soft: #e4ebf0;
-  --warn: #9a5b2e;
-  --warn-soft: #f3e8dc;
-  --danger: #9e3b33;
-  --paper: #fbfaf5;
-  --paper-line: rgba(70, 110, 140, 0.16);
-  --paper-margin: rgba(196, 120, 110, 0.45);
+  --series-a: #2f7fc4; /* 차트 범주색 (validate_palette.js 통과) */
+  --series-b: #b8860b;
+  --paper: #fffdf7;
+  --paper-line: rgba(120, 200, 248, 0.32);
+  --paper-margin: rgba(233, 120, 79, 0.4);
+  --shadow-soft: 0 1px 2px rgba(37, 53, 77, 0.04), 0 8px 24px rgba(37, 53, 77, 0.06);
+  --shadow-float: 0 18px 40px rgba(47, 143, 208, 0.16);
   color-scheme: light;
 }
 
 [data-theme="dark"] {
-  --bg: #161714;
-  --surface: #1c1d19;
-  --surface-2: #24251f;
-  --ink: #e7e5dd;
-  --ink-2: #a5a399;
-  --ink-3: #75736a;
-  --line: #34352f;
-  --line-strong: #4a4b43;
-  --accent: #8db5a6;
-  --accent-ink: #12201b;
-  --accent-soft: #23302b;
-  --sky: #8fa9be;
-  --sky-soft: #1f2a33;
-  --warn: #d0a07a;
-  --warn-soft: #2d241c;
-  --danger: #d98a80;
-  --paper: #22231f;
-  --paper-line: rgba(170, 190, 205, 0.12);
-  --paper-margin: rgba(200, 130, 120, 0.35);
+  --bg: #141c29;
+  --surface: #1b2535;
+  --surface-2: #223047;
+  --ink: #eef3f9;
+  --ink-2: #b3c0d1;
+  --ink-3: #7d8ca1;
+  --line: #2a3a52;
+  --line-strong: #3a4d69;
+  --sky: #78c8f8;
+  --sky-deep: #8fd3fb;
+  --sky-soft: #1e3550;
+  --mint: #2d5a43;
+  --mint-deep: #8fd8a8;
+  --yellow: #5a4a20;
+  --lavender: #3a3560;
+  --warn: #f29a78;
+  --warn-soft: #3d2a24;
+  --accent: #eef3f9;
+  --accent-ink: #141c29;
+  --series-a: #3a8fd2;
+  --series-b: #c08a1e;
+  --paper: #222d3f;
+  --paper-line: rgba(120, 200, 248, 0.18);
+  --paper-margin: rgba(242, 154, 120, 0.35);
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25);
+  --shadow-float: 0 18px 40px rgba(0, 0, 0, 0.35);
   color-scheme: dark;
 }
 
@@ -59,81 +74,86 @@
   --color-ink-3: var(--ink-3);
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
-  --color-accent: var(--accent);
-  --color-accent-ink: var(--accent-ink);
-  --color-accent-soft: var(--accent-soft);
   --color-sky: var(--sky);
+  --color-sky-deep: var(--sky-deep);
   --color-sky-soft: var(--sky-soft);
+  --color-mint: var(--mint);
+  --color-mint-deep: var(--mint-deep);
+  --color-yellow: var(--yellow);
+  --color-lavender: var(--lavender);
   --color-warn: var(--warn);
   --color-warn-soft: var(--warn-soft);
   --color-danger: var(--danger);
-  --font-sans: var(--font-plex), "Hiragino Sans", "Noto Sans JP", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
+  --color-accent: var(--accent);
+  --color-series-a: var(--series-a);
+  --color-series-b: var(--series-b);
+  --color-accent-ink: var(--accent-ink);
+  --font-sans: "Pretendard Variable", Pretendard, "Hiragino Sans", "Noto Sans JP", "PingFang SC", system-ui, sans-serif;
+  --shadow-soft: var(--shadow-soft);
+  --shadow-float: var(--shadow-float);
 }
 
-html,
-body {
-  background: var(--bg);
-  color: var(--ink);
-}
-
+html, body { background: var(--bg); color: var(--ink); }
 body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+  letter-spacing: -0.01em;
 }
+::selection { background: var(--sky-soft); }
+:focus-visible { outline: 2px solid var(--sky-deep); outline-offset: 2px; border-radius: 8px; }
 
-::selection {
-  background: var(--accent-soft);
-}
-
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-/* 스위스 타이포그래피: 숫자 라벨·오버라인 */
 .eyebrow {
-  font-size: 0.6875rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink-3);
+  font-size: 0.75rem;
   font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--sky-deep);
 }
 
-/* ── 종이: 줄노트 + 손으로 그린 듯한 구불한 테두리 ── */
+/* 하늘 배경 (히어로) */
+.sky-wash {
+  background:
+    radial-gradient(60% 60% at 30% 40%, var(--sky-soft) 0%, transparent 70%),
+    radial-gradient(40% 50% at 85% 20%, color-mix(in srgb, var(--lavender) 55%, transparent) 0%, transparent 70%);
+}
+
+/* ── 종이 노트: 줄노트 + 손으로 그린 듯한 테두리 ── */
 .paper {
   position: relative;
   background-color: var(--paper);
   background-image:
-    linear-gradient(to right, transparent 34px, var(--paper-margin) 34px, var(--paper-margin) 35px, transparent 35px),
-    repeating-linear-gradient(to bottom, transparent 0, transparent 35px, var(--paper-line) 35px, var(--paper-line) 36px);
-  background-position: 0 14px;
-  border: 1.5px solid var(--ink);
-  border-radius: 255px 14px 225px 14px / 14px 225px 14px 255px;
+    linear-gradient(to right, transparent 38px, var(--paper-margin) 38px, var(--paper-margin) 39.5px, transparent 39.5px),
+    repeating-linear-gradient(to bottom, transparent 0, transparent 39px, var(--paper-line) 39px, var(--paper-line) 40px);
+  background-position: 0 18px;
+  border: 1.5px solid color-mix(in srgb, var(--ink) 70%, transparent);
+  border-radius: 255px 18px 225px 18px / 18px 225px 18px 255px;
+  box-shadow: var(--shadow-soft);
 }
-
 .paper-field {
-  background: transparent;
-  width: 100%;
-  border: 0;
-  outline: none;
-  line-height: 36px;
-  color: var(--ink);
-  resize: none;
+  background: transparent; width: 100%; border: 0; outline: none;
+  line-height: 40px; color: var(--ink); resize: none;
 }
+.paper-field::placeholder { color: var(--ink-3); }
 
-.paper-field::placeholder {
-  color: var(--ink-3);
-}
+/* ── 캐릭터 모션 ── */
+@keyframes float { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-6px) } }
+@keyframes squish { 0%, 100% { transform: scale(1, 1) } 40% { transform: scale(1.08, 0.92) } 70% { transform: scale(0.96, 1.05) } }
+@keyframes tilt { 0%, 100% { transform: rotate(0) } 50% { transform: rotate(-7deg) } }
+@keyframes hop { 0%, 100% { transform: translateY(0) scale(1) } 30% { transform: translateY(-14px) scale(0.97, 1.04) } 60% { transform: translateY(0) scale(1.06, 0.94) } }
+@keyframes wiggle { 0%, 100% { transform: rotate(0) } 25% { transform: rotate(-6deg) } 75% { transform: rotate(6deg) } }
+@keyframes pop-in { from { opacity: 0; transform: translateY(12px) scale(0.96) } to { opacity: 1; transform: none } }
+@keyframes split-left { to { transform: translateX(-46%) rotate(-12deg); opacity: 0 } }
+@keyframes split-right { to { transform: translateX(46%) rotate(12deg); opacity: 0 } }
+@keyframes rise { from { transform: translateY(40px) scale(0.3); opacity: 0 } to { transform: none; opacity: 1 } }
+@keyframes dot { 0%, 80%, 100% { opacity: 0.25 } 40% { opacity: 1 } }
+
+.anim-float { animation: float 4s ease-in-out infinite; }
+.anim-squish { animation: squish 0.7s ease-in-out; }
+.anim-tilt { animation: tilt 1.6s ease-in-out infinite; }
+.anim-hop { animation: hop 0.9s ease-in-out infinite; }
+.anim-wiggle { animation: wiggle 0.5s ease-in-out 3; }
+.anim-pop { animation: pop-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+.anim-rise { animation: rise 0.8s cubic-bezier(0.2, 0.9, 0.3, 1.15) both; }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }

@@ -11,8 +11,17 @@ __pycache__/
 !.env.example
 
 # Runtime data (rebuilt by scripts)
-backend/storage/
-backend/data/cache/
+backend/rag-service/storage/
+backend/rag-service/data/raw/*.csv
+
+# Node (gateway)
+dist/
+coverage/
+
+# 로컬 도구·검증 산출물
+.playwright/
+test-results/
+*.log
 
 # Node / Next.js
 node_modules/
