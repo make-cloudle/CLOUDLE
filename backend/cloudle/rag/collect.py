@@ -103,13 +103,12 @@ def _is_direct(item: Item, c: wikipedia.WikiCandidate) -> bool:
 
 
 def _rule_select(item: Item, cands: list[wikipedia.WikiCandidate]) -> list[str]:
+    """제목에 품목명·별칭이 들어간 문서만 채택한다 (요약문 일치만으로는 회사·인물 문서가 섞인다)."""
+    names = [n.lower().replace(" ", "") for n in (*item.names.values(), *item.aliases) if n]
     direct = [c.id for c in cands if _is_direct(item, c)]
     related = [
         c.id for c in cands
-        if c.id not in direct and any(
-            n and n.lower() in (c.title + " " + c.snippet).lower()
-            for n in (item.name("ko"), item.name("en"), *item.aliases)
-        )
+        if c.id not in direct and any(n in c.title.lower().replace(" ", "") for n in names)
     ]
     return (direct + related)[:3]
 

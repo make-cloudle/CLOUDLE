@@ -96,6 +96,28 @@ def retrieve(item: Item, question: str, session_id: str = "public",
     else:
         order = keep[:top_k]
 
+    # 분류별 배출 안내(guide)는 최대 2건 보장한다: 위키백과 청크가 많으면 안내 문서가 후보에서 밀려난다.
+    guide_res = col.query(
+        query_embeddings=[q_emb.tolist()], n_results=2,
+        where={"$and": [where["$and"][0], {"source_type": "guide"}]},
+        include=["documents", "metadatas", "distances"],
+    )
+    chosen_hashes = {metas[i]["content_hash"] for i in order}
+    extra = []
+    for cid, doc, m, dist in zip(guide_res["ids"][0], guide_res["documents"][0],
+                                 guide_res["metadatas"][0], guide_res["distances"][0]):
+        if m["content_hash"] not in chosen_hashes:
+            extra.append((cid, doc, m, dist))
+    if extra:
+        order = order[: max(0, top_k - len(extra))]
+        ids, docs, metas, dists = list(ids), list(docs), list(metas), list(dists)
+        for cid, doc, m, dist in extra:
+            ids.append(cid)
+            docs.append(doc)
+            metas.append(m)
+            dists.append(dist)
+            order.append(len(ids) - 1)
+
     for rank, i in enumerate(order, start=2):
         m = metas[i]
         results.append(Evidence(

@@ -1,6 +1,7 @@
 """위키백과 MediaWiki API (CC BY-SA 4.0). 출처·라이선스를 결과에 표기한다."""
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from urllib.parse import quote
 
@@ -28,8 +29,6 @@ def _api(lang: str) -> str:
 
 
 def _strip_html(s: str) -> str:
-    import re
-
     return re.sub(r"<[^>]+>", "", s).replace("&quot;", '"').replace("&amp;", "&")
 
 
@@ -51,7 +50,8 @@ def extract(pageid: int, lang: str = "ko") -> str:
         "format": "json", "utf8": 1,
     }, namespace="wiki-extract", ttl=30 * 86400)
     page = data.get("query", {}).get("pages", {}).get(str(pageid), {})
-    return (page.get("extract") or "")[:MAX_CHARS]
+    text = re.sub(r"^=+\s*(.*?)\s*=+\s*$", r"\1.", page.get("extract") or "", flags=re.M)
+    return text[:MAX_CHARS]
 
 
 def summary(title: str, lang: str = "en") -> dict | None:
