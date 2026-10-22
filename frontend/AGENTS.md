@@ -32,6 +32,7 @@ src/
 - 컴포넌트: `src/shared/ui/primitives.tsx` (Button·Chip·Card·Tag·Input·Alert·Segmented). 새 버튼·카드를 직접 만들지 말고 여기서 확장한다.
 - 캐릭터: `public/characters/*.png` (사용자 제공 AI 생성 이미지, 사용 허락됨). `entities/mascot`의 `CloudMascot`·`EarthBuddy`로만 쓴다. 30초 무입력 시 대기 동작(`useIdle`).
   원본이 약 150px이라 고해상도 화면에서 깨지지 않게 `@2x`·`@3x`를 함께 둔다(`scripts/upscale-characters.py`, cmd에서 `.venv` python으로 실행). `<img>`는 직접 경로 대신 `charImg(name)`(src+srcSet)을 쓴다. 표시 크기는 원본의 1배 안팎(≈64~112px)을 넘기지 않는다.
+  Cloud Lab 통은 **짚 바구니**(`BinStage.tsx::strawTexture` 코드 생성 텍스처). 모양을 바꿔도 `BIN`(rTop·rBottom·h)·`RIM_R`은 던지기 물리 값이라 유지한다. 결과 구름은 갈라지지 않고 옆으로 흘러가며 사라진다(`drift-away`).
   홈 지구본: 구름은 오른쪽 위, 지구 친구는 그 왼쪽에 나란히 (지구본·범례를 가리지 않게).
 - 아이콘은 라인 SVG(`shared/ui/icons.tsx`). 이모지로 대신하지 않는다.
 - 문구는 `shared/lib/i18n.ts`에 4개 언어(ko·en·ja·zh)로 추가한다. 입력 안내는 "예: …"가 아니라 "~를 적어주세요" 형태.
