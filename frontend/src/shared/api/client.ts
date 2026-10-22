@@ -2,7 +2,12 @@
 
 import type { Lang } from "@/shared/lib/i18n";
 
-export const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:4000";
+/** 게이트웨이 주소. 지정이 없으면 지금 연 페이지와 같은 호스트의 :4000 (휴대폰에서 LAN IP로 열어도 동작). */
+export function apiBase(): string {
+  if (process.env.NEXT_PUBLIC_API_BASE) return process.env.NEXT_PUBLIC_API_BASE;
+  if (typeof window === "undefined") return "http://localhost:4000";
+  return `${window.location.protocol}//${window.location.hostname}:4000`;
+}
 
 /** 비회원 세션 ID (C01). 브라우저에만 저장되고 서버는 24시간 후 기록을 지운다. */
 export function sessionId(): string {
@@ -24,10 +29,10 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+export async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   let res: Response;
   try {
-    res = await fetch(`${API_BASE}${path}`, {
+    res = await fetch(`${apiBase()}${path}`, {
       ...init,
       headers: { "X-Session-Id": sessionId(), ...(init.headers ?? {}) },
     });
@@ -143,7 +148,7 @@ export async function analyze(
 ): Promise<AnalysisResult> {
   let res: Response;
   try {
-    res = await fetch(`${API_BASE}/api/analyze`, {
+    res = await fetch(`${apiBase()}/api/analyze`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Session-Id": sessionId() },
       body: JSON.stringify({ paper }),

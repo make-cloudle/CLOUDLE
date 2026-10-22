@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -H 0.0.0.0",
+    "dev:yena": "node scripts/dev-as.mjs 3001",
+    "dev:both": "node scripts/dev-as.mjs 3000 3001",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
@@ -15,6 +17,7 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-globe.gl": "^2.38.0",
+    "socket.io-client": "^4.8.4",
     "three": "^0.186.1",
     "zustand": "^5.0.15"
   },
