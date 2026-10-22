@@ -70,20 +70,55 @@ ok("분리수거 폭탄: 바꾼 종류가 전부 사라진다", () => {
   assert.ok(res.steps[0].cleared.length >= count + 1, `${res.steps[0].cleared.length} >= ${count + 1}`);
 });
 
-ok("줄 폭탄: 바꾸면 그 줄이 전부 사라진다", () => {
+ok("줄 폭탄: 옮기기만 하면 발동하지 않는다 (매치가 없으면 제자리)", () => {
   const c = mk(); const b = base(c);
   b[4][4] = { ...b[4][4], special: "line-h" };
-  const res = E.resolveMove(c, b, [4, 4], [4, 5]);
-  assert.ok(res);
-  const row4 = res.steps[0].cleared.filter(([r]) => r === 4).length;
-  assert.equal(row4, E.COLS);
+  assert.equal(E.resolveMove(c, b, [4, 4], [4, 5]), null);
+  assert.equal(E.resolveMove(c, b, [4, 4], [3, 4]), null);
 });
 
-ok("구역 폭탄: 5×5(가장자리 아닐 때 25칸)", () => {
+ok("줄 폭탄: 같은 종류와 함께 맞춰 터질 때 그 줄이 전부 사라진다", () => {
+  const c = mk(); const b = base(c);
+  set(b, [[3, 0], [3, 1], [3, 3], [4, 2]], 5);
+  b[3][2] = { ...b[3][2], kind: 0 }; b[2][2] = { ...b[2][2], kind: 1 };
+  b[3][3] = { ...b[3][3], special: "line-h" };
+  assert.equal(E.findRuns(b).length, 0, "사전조건");
+  const res = E.resolveMove(c, b, [3, 2], [4, 2]);
+  assert.ok(res);
+  // 줄이 전부 사라지되, 4개를 맞춰 만든 새 줄 폭탄 자리(3,2)는 새 특수 블록으로 남는다
+  assert.equal(res.steps[0].cleared.filter(([r]) => r === 3).length, E.COLS - 1);
+  assert.deepEqual([res.steps[0].created[0].r, res.steps[0].created[0].c, res.steps[0].created[0].special], [3, 2, "line-h"]);
+});
+
+ok("구역 폭탄: 옮기기만 하면 발동하지 않는다", () => {
   const c = mk(); const b = base(c);
   b[4][4] = { ...b[4][4], special: "bomb" };
-  const res = E.resolveMove(c, b, [4, 4], [4, 5]);
-  assert.ok(res.steps[0].cleared.length >= 25);
+  assert.equal(E.resolveMove(c, b, [4, 4], [4, 5]), null);
+});
+
+ok("구역 폭탄: 같은 종류와 함께 맞춰 터질 때 5×5(25칸)", () => {
+  const c = mk(); const b = base(c);
+  set(b, [[4, 4], [4, 5], [3, 3]], 1);
+  b[4][4] = { ...b[4][4], special: "bomb" };
+  assert.equal(E.findRuns(b).length, 0, "사전조건");
+  const res = E.resolveMove(c, b, [3, 3], [4, 3]);
+  assert.ok(res);
+  assert.ok(res.steps[0].cleared.length >= 25, String(res.steps[0].cleared.length));
+});
+
+ok("분리수거 폭탄은 바꾸기만 해도 발동한다", () => {
+  const c = mk(); const b = base(c);
+  b[0][0] = { id: 9998, kind: -1, special: "color" };
+  assert.ok(E.resolveMove(c, b, [0, 0], [0, 1]));
+});
+
+ok("움직일 곳 판정: 줄·구역 폭탄만 있는 보드는 매치가 없으면 '움직일 곳 없음'", () => {
+  const c = mk(); const b = base(c);
+  assert.equal(E.hasMove(b), false);
+  b[4][4] = { ...b[4][4], special: "line-h" };
+  assert.equal(E.hasMove(b), false);
+  b[4][4] = { id: 9997, kind: -1, special: "color" };
+  assert.equal(E.hasMove(b), true);
 });
 
 ok("콤보 배수 ×1,×2,×3,×4(최대) · 시간 보너스 · 보드 유지", () => {
