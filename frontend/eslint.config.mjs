@@ -11,7 +11,7 @@ const eslintConfig = defineConfig([
     files: ["src/features/cloud-lab/BinStage.tsx", "src/features/globe/**/*.tsx"],
     rules: { "react-hooks/immutability": "off" },
   },
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+  globalIgnores([".next/**", ".next-*/**", "out/**", "build/**", "next-env.d.ts"]),
 ]);
 
 export default eslintConfig;
