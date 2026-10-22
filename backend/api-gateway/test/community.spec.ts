@@ -25,6 +25,7 @@ const engine = new FakeEngine();
 const sockets: Socket[] = [];
 
 beforeAll(async () => {
+  process.env.CORS_ORIGINS = "https://cloudle.vercel.app"; // 운영과 같은 허용 목록
   const mod = await Test.createTestingModule({ imports: [AppModule] }).overrideProvider(RagEnginePort).useValue(engine).compile();
   // main.ts의 createApp을 그대로 써서 CORS·소켓 어댑터까지 실제와 같게 띄운다
   app = await createApp(async (adapter) => mod.createNestApplication<NestFastifyApplication>(adapter));
@@ -50,6 +51,24 @@ test("포트로 사람이 정해진다: 3000=지구미, 3001=예나", async () =
   const [a, b] = await Promise.all([connect(3000), connect(3001)]);
   expect(a.me.nickname).toBe("지구미");
   expect(b.me.nickname).toBe("예나");
+});
+
+test("허용되지 않은 Origin은 소켓 접속이 거절된다 (CORS와 별개로 서버가 검사)", async () => {
+  const bad = io(url, { transports: ["websocket"], extraHeaders: { origin: "https://evil.example.com" }, forceNew: true, reconnection: false, timeout: 3000 });
+  sockets.push(bad);
+  const err = await new Promise<string>((resolve) => { bad.once("connect_error", (e) => resolve(e.message)); bad.once("me", () => resolve("connected")); });
+  expect(err).not.toBe("connected");
+});
+
+test("게스트는 세션마다 다른 사람이다 (세션 ID 앞 4글자가 같아도 합쳐지지 않는다)", async () => {
+  const mkGuest = (sid: string) => new Promise<{ s: Socket; me: { id: string; nickname: string } }>((resolve) => {
+    const s = io(url, { transports: ["websocket"], extraHeaders: { origin: "https://cloudle.vercel.app" }, auth: { sessionId: sid }, forceNew: true });
+    sockets.push(s);
+    s.once("me", (me) => resolve({ s, me }));
+  });
+  const [g1, g2] = await Promise.all([mkGuest("abcd1111aaaa"), mkGuest("abcd2222bbbb")]);
+  expect(g1.me.nickname).toBe(g2.me.nickname);       // 보이는 이름은 같을 수 있지만
+  expect(g1.me.id).not.toBe(g2.me.id);               // 사람(식별자)은 다르다
 });
 
 test("입장 알림 · 메시지 방송 · 리액션", async () => {

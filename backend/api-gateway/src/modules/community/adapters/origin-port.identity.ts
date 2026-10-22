@@ -23,8 +23,11 @@ export class OriginPortIdentity extends IdentityPort {
 
   resolve({ origin, sessionId }: ConnectionInfo): Member {
     const port = portOf(origin);
-    const nickname = (port && this.byPort.get(port)) || `구름손님${(sessionId ?? "").slice(0, 4).toUpperCase()}`;
-    return { id: `u:${nickname}`, nickname, tone: toneFor(nickname) };
+    const mapped = port && this.byPort.get(port);
+    if (mapped) return { id: `u:${mapped}`, nickname: mapped, tone: toneFor(mapped) };
+    // 게스트: 식별자는 세션 ID 전체(충돌 방지), 앞 4글자는 화면에 보이는 이름에만 쓴다
+    const sid = sessionId || "anonymous";
+    return { id: `g:${sid}`, nickname: `구름손님${sid.slice(0, 4).toUpperCase()}`, tone: toneFor(sid) };
   }
 }
 
