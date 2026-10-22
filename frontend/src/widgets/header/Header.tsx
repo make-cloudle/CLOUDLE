@@ -2,6 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
+import { charImg } from "@/entities/mascot/characters";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { LANGS, type Lang, useT } from "@/shared/lib/i18n";
@@ -35,7 +36,7 @@ export function Header() {
     <header className="sticky top-0 z-30 bg-bg/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-[1320px] items-center gap-6 px-4 sm:px-8">
         <Link href="/" className="flex items-center gap-2 text-[17px] font-extrabold tracking-tight">
-          <img src="/characters/cloud-default.png" alt="" className="h-7 w-auto" />
+          <img {...charImg("cloud-default")} alt="" className="h-7 w-auto" />
           CLOUDLE
         </Link>
         <nav aria-label="primary" className="hidden flex-1 items-center justify-center gap-1 md:flex">
