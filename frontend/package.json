@@ -8,7 +8,8 @@
     "dev:both": "node scripts/dev-as.mjs 3000 3001",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:puzzle": "node scripts/test-trash-match.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
