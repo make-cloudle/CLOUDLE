@@ -80,7 +80,7 @@ test("분석 SSE를 그대로 중계한다", async () => {
 test("세션별 요청 제한 429 rate_limited", async () => {
   const h = { "x-session-id": "limitsession99" };
   const codes: number[] = [];
-  for (let i = 0; i < 5; i++) codes.push((await inject({ method: "POST", url: "/api/factcheck", headers: h, payload: { claim: `종이컵 테스트 ${i}` } })).statusCode);
+  for (let i = 0; i < 5; i++) codes.push((await inject({ method: "POST", url: "/api/search", headers: h, payload: { query: `종이컵 테스트 ${i}` } })).statusCode);
   expect(codes.slice(0, 3)).toEqual([201, 201, 201]);
   expect(codes[3]).toBe(429);
 });
