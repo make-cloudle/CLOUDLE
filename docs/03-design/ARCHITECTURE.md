@@ -23,17 +23,18 @@ flowchart LR
 ## 2. api-gateway — 헥사고날
 ```
 presentation  modules/*/controller + DTO(class-validator)
-application   modules/*/service  (유스케이스: Earth · Lab · Detective)
-port          shared/ports/RagEnginePort
-adapter       shared/adapters/RagEngineHttpAdapter
+presentation  modules/community/inbound/ (socket.io gateway · HTTP controller)
+application   modules/*/service  (유스케이스: Earth · Lab · Community)
+port          shared/ports/RagEnginePort · community/ports/(MessageStore · AttachmentStore · Identity · RoomEvents · MemoSummarizer)
+adapter       shared/adapters/RagEngineHttpAdapter · community/adapters/(InMemory* · OriginPortIdentity · SocketIoRoomEvents · RagMemoSummarizer)
 cross-cut     core/ SessionGuard · SessionThrottlerGuard · AppExceptionFilter · shared/cache/TtlCache
 ```
 
 ## 3. frontend — Feature-Sliced Design
 ```
 app → widgets → features → entities → shared   (아래로만 import)
-features: globe · cloud-lab · ask-cloud · compare · discovery
-entities: mascot · country · evidence
+features: globe · cloud-lab · ask-cloud · compare · discovery · talk
+entities: mascot · country · evidence · talk
 shared:   ui(디자인 시스템) · lib(i18n·prefs·idle) · api
 ```
 디자인 시스템은 별도 화면 없이 `globals.css` 토큰 + `shared/ui` 컴포넌트로만 쓴다.
