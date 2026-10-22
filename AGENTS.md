@@ -13,7 +13,7 @@
 |---|---|---|
 | Earth SOS | `/` | 3D 지구본 · PM2.5 레이어 · 국가 핵심 지표 · 구름에게 묻기 |
 | Cloud Lab | `/bin` | 노트·쓰레기를 던져 넣고 RAG로 수리·재사용·재활용 분석 |
-| Planet VS | `/vs` | 두 나라 비교 · 연도별 변화(타임머신) · 차이의 배경 · **분리배출 퍼즐**(3-매치 게임, 탭 전환) |
+| 분리수거 게임 | `/game` | 비닐·플라스틱·캔·종이·유리·일반 3-매치 퍼즐 (줄/구역/분리수거 폭탄 · 콤보 배수 · 시간 회복). 예전 국가 비교(`/vs`)는 삭제되어 `/game`으로 리다이렉트 |
 | 구름 광장 (Community) | `/talk` | 주제별 실시간 채팅방(WebSocket, 들어가면 그 방만 전체 화면) · 사진/파일 · 이모티콘 반응 · CLOUDLE MEMO · 에코 버킷 공유 · AI 메모 정리 |
 | 에코 버킷 | `/bin` 결과 · `/book` · `/talk` | Cloud Lab 결과·방법을 담아 두는 개인 리스트(브라우저 저장) → 채팅방에 카드로 공유 |
 | Discovery Book | `/book` | 알아낸 사실과 출처 자동 저장 (브라우저에만) |
@@ -29,6 +29,8 @@ docs/                   기획 · 요구사항 · 설계 · 데이터 · 검증
 실시간 채팅: `브라우저 ⇄ socket.io(:4000/community) → CommunityService → (AI 메모 정리만) rag-service`.
 프론트엔드는 rag-service를 직접 호출하지 않는다.
 
+> **Phase 8:** 국가 비교(Planet VS)를 **삭제하고 분리수거 게임으로 교체**했다. LLM을 쓰던 "차이의 배경"도 함께 사라졌다. 경위·트러블슈팅은 [`docs/05-verification/PUZZLE.md`](docs/05-verification/PUZZLE.md).
+>
 > **Phase 7-2 (리팩토링):** 입장/퇴장을 카카오톡식 참여 모델로, 방 전체 화면, 이모티콘 반응, 에코 버킷, 말풍선 토큰, 캐릭터 고해상도. 경위는 [`docs/05-verification/REFACTOR_COMMUNITY.md`](docs/05-verification/REFACTOR_COMMUNITY.md).
 >
 > **Phase 7 변경:** 질문마다 LLM을 쓰던 Eco Detective(`/detective`, 게이트웨이 `/api/factcheck`)를 화면·게이트웨이에서 제거하고 구름 광장으로 바꿨다. LLM은 지구본(국가 질문)·Cloud Lab·AI 메모 정리 버튼에서만 쓴다. rag-service의 `factcheck.py`는 Streamlit·테스트 호환을 위해 남겨 두었다.

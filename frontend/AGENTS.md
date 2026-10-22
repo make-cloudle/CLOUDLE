@@ -18,9 +18,9 @@ Next.js 16 (App Router) · React 19 · React Three Fiber · react-globe.gl · Zu
 ## 2. 구조 — Feature-Sliced Design
 ```
 src/
-  app/        라우트(화면 조립만): / · /bin · /vs · /talk · /book · /explore · /about
+  app/        라우트(화면 조립만): / · /bin · /game · /talk · /book · /explore · /about  (`/vs`는 `/game`으로 308 리다이렉트)
   widgets/    여러 기능을 묶은 화면 블록: header · footer · result-card
-  features/   사용자 행동 단위: globe · cloud-lab(던지기·노트·업로드) · ask-cloud · compare · discovery · eco-bucket · talk(채팅)
+  features/   사용자 행동 단위: globe · cloud-lab(던지기·노트·업로드) · ask-cloud · trash-match(분리수거 게임) · discovery · eco-bucket · talk(채팅)
   entities/   도메인 표현: mascot(지구·구름 캐릭터) · country · evidence(근거 번호·출처) · eco-bucket · talk(채팅 타입)
   shared/     ui(디자인 시스템) · lib(i18n·prefs·idle) · api(게이트웨이 클라이언트)
 ```
@@ -51,7 +51,7 @@ src/
 - 신원은 서버가 Origin 포트로 정한다(3000=지구미, 3001=예나). 같은 폴더에서 두 dev 서버를 띄우려면 `pnpm dev:both`(포트별 `NEXT_DIST_DIR` 분리, `scripts/dev-as.mjs`).
 - API 주소는 `apiBase()` — 지정이 없으면 현재 호스트의 :4000이라 휴대폰(LAN IP)에서도 동작한다.
 
-## 3-2. 분리배출 퍼즐 (`/vs`의 "분리배출 퍼즐" 탭, `features/trash-match`)
+## 3-2. 분리수거 게임 (`/game`, `features/trash-match`)
 - 규칙은 `engine.ts`(React·DOM 없는 순수 함수)에만 둔다. 화면(`TrashMatch.tsx`)은 `resolveMove()`가 돌려준 단계(`steps`)를 애니메이션으로 재생만 한다.
   검증: `pnpm test:puzzle` (규칙 테스트: 초기 보드·특수 블록 생성/발동·잘못된 교환·콤보 배수·4,000회 이상 이동 시뮬레이션).
 - 종류 6가지(비닐·플라스틱·캔·종이·유리·일반)는 **색 + 모양**이 모두 다르다(`pieces.tsx`). 아이콘은 라인 SVG, 이모지 금지.
