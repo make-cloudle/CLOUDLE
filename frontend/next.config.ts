@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ["192.168.*.*", "10.*.*.*", "172.*.*.*"],
   cacheComponents: true,
   partialPrefetching: true,
+  // 국가 비교(/vs)를 없애고 분리수거 게임(/game)으로 바꿨다 — 예전 주소로 들어와도 이어지게
+  async redirects() {
+    return [{ source: "/vs", destination: "/game", permanent: true }];
+  },
   turbopack: {
     rules: {
       "*.css": {

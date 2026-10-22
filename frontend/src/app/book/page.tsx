@@ -10,7 +10,8 @@ import { usePrefs } from "@/shared/lib/prefs";
 import { IconExternal, IconLeaf, IconX } from "@/shared/ui/icons";
 import { buttonClass, Button, Chip, Overline, Tag } from "@/shared/ui/primitives";
 
-const KINDS: DiscoveryKind[] = ["country", "analysis", "compare", "talk"];
+// compare는 국가 비교 기능을 없애며 새로 쌓이지 않는다 (예전 기록은 목록에서 계속 보인다)
+const KINDS: DiscoveryKind[] = ["country", "analysis", "talk"];
 const TONE = { country: "sky", analysis: "mint", fact: "yellow", compare: "lavender", talk: "yellow" } as const;
 const noop = () => () => {};
 
