@@ -1,0 +1,53 @@
+# CLOUDLE 백엔드 배포: Caddy(HTTPS) → gateway(:4000, HTTP+WebSocket) → rag(:8000, 내부 전용)
+# 외부에 열리는 포트는 80/443뿐이다. 사용법은 docs/06-deploy/ORACLE_CLOUD.md 참고.
+services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      API_DOMAIN: "${API_DOMAIN:?API_DOMAIN을 .env에 적어 주세요 (예 api.example.com)}"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data        # 인증서 보관 (지우면 재발급 한도에 걸릴 수 있음)
+      - caddy_config:/config
+    depends_on:
+      gateway:
+        condition: service_healthy
+
+  gateway:
+    build: ./backend/api-gateway
+    restart: unless-stopped
+    expose:
+      - "4000"
+    environment:
+      NODE_ENV: production
+      RAG_SERVICE_URL: http://rag:8000
+      # 프론트(Vercel) 주소만 허용. 쉼표로 여러 개 가능 (미리보기 배포 주소 등)
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://cloudle.vercel.app}
+      ALLOW_LAN_ORIGINS: "false"
+      # 운영에서는 개발용 "포트 = 사람" 매핑을 끈다 (Origin에 포트가 없어 어차피 매칭되지 않음)
+      COMMUNITY_IDENTITIES: ""
+      RATE_LIMIT_PER_MIN: ${RATE_LIMIT_PER_MIN:-20}
+    depends_on:
+      rag:
+        condition: service_healthy
+
+  rag:
+    build: ./backend/rag-service
+    restart: unless-stopped
+    expose:
+      - "8000"
+    environment:
+      GMS_KEY: ${GMS_KEY:-}                 # 비우면 오프라인 모드(규칙·발췌)로 동작
+      TOKEN_BUDGET: ${TOKEN_BUDGET:-70000}
+      WIKI_USER_AGENT: ${WIKI_USER_AGENT:-CLOUDLE/0.2 (education project)}
+    volumes:
+      - rag_storage:/app/storage
+
+volumes:
+  caddy_data:
+  caddy_config:
+  rag_storage:
