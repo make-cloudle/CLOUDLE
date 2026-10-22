@@ -5,6 +5,7 @@ import { ThrottlerModule } from "@nestjs/throttler";
 import { appConfig } from "./config/app.config";
 import { AppExceptionFilter } from "./core/http-exception.filter";
 import { SessionThrottlerGuard } from "./core/rate-limit.guard";
+import { CommunityModule } from "./modules/community/community.module";
 import { EarthController } from "./modules/earth/earth.controller";
 import { EarthService } from "./modules/earth/earth.service";
 import { HealthController } from "./modules/health/health.controller";
@@ -20,6 +21,7 @@ import { SharedModule } from "./shared/shared.module";
       useFactory: (c: ConfigService) => [{ ttl: 60_000, limit: c.get<number>("rateLimitPerMin") ?? 20 }],
     }),
     SharedModule,
+    CommunityModule,
   ],
   controllers: [HealthController, EarthController, LabController],
   providers: [
