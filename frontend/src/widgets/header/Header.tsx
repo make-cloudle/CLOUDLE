@@ -14,7 +14,7 @@ const NAV = [
   { href: "/", key: "nav_earth" },
   { href: "/bin", key: "nav_loop" },
   { href: "/vs", key: "nav_vs" },
-  { href: "/detective", key: "nav_detective" },
+  { href: "/talk", key: "nav_talk" },
   { href: "/book", key: "nav_book" },
 ] as const;
 
