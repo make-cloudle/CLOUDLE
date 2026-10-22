@@ -396,11 +396,43 @@ function Throwable({ kind, texture, layout, phase, canCrumple, cmd, shared, cb }
   );
 }
 
-/* ══ 클라우드 빈 (구름 테두리 · 얼굴 · 구름 뚜껑) ═════════════════════ */
+/** 짚 바구니 질감: 가로로 엮은 띠 + 어긋난 짚 가닥 (타일 하나가 8×8칸) */
+function strawTexture() {
+  const c = document.createElement("canvas");
+  c.width = c.height = 256;
+  const x = c.getContext("2d")!;
+  const CELL = 32;
+  const tones = ["#e2bd78", "#d6aa62", "#caa05a", "#dcb46c", "#c99a52"];
+  x.fillStyle = "#b98a46";
+  x.fillRect(0, 0, 256, 256);
+  for (let r = 0; r < 8; r++) {
+    for (let k = 0; k < 8; k++) {
+      const ox = k * CELL + (r % 2 ? CELL / 2 : 0) - CELL / 2;
+      const tone = tones[(r * 3 + k * 2 + (r % 2)) % tones.length];
+      for (const wrap of [0, 256]) {
+        const px = ox + wrap, py = r * CELL;
+        x.fillStyle = tone;
+        x.beginPath(); x.roundRect(px + 2, py + 3, CELL - 4, CELL - 6, 7); x.fill();
+        x.strokeStyle = "rgba(120,80,30,0.55)"; x.lineWidth = 2; x.stroke();
+        // 짚결 하이라이트
+        x.strokeStyle = "rgba(255,240,200,0.45)"; x.lineWidth = 1.2;
+        for (let i = 0; i < 3; i++) { x.beginPath(); x.moveTo(px + 6, py + 9 + i * 7); x.lineTo(px + CELL - 6, py + 9 + i * 7); x.stroke(); }
+      }
+    }
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(3, 1);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 4;
+  return t;
+}
+
+/* ══ 클라우드 빈 (짚으로 엮은 바구니 · 얼굴 · 구름 뚜껑) ═════════════════ */
 function CloudBin({ layout, phase, shared, cb }: { layout: Layout; phase: Phase; shared: React.RefObject<Shared>; cb: Callbacks }) {
   const g = useRef<THREE.Group>(null);
   const lid = useRef<THREE.Group>(null);
-  const puffs = useRef<THREE.Group>(null);
+  const straw = useMemo(() => strawTexture(), []);
   const dark = usePrefs((s) => s.theme === "dark");
   const { camera, size } = useThree();
   const body = useMemo(() => {
@@ -411,7 +443,12 @@ function CloudBin({ layout, phase, shared, cb }: { layout: Layout; phase: Phase;
       pts.push(new THREE.Vector2(BIN.rBottom * 0.6 + Math.sin((t * Math.PI) / 2) * BIN.rBottom * 0.4, -BIN.h / 2 + (1 - Math.cos((t * Math.PI) / 2)) * 0.18));
     }
     pts.push(new THREE.Vector2(BIN.rTop, BIN.h / 2));
-    return new THREE.LatheGeometry(pts, 48);
+    const geo = new THREE.LatheGeometry(pts, 48);
+    // 엮은 무늬가 늘어나지 않도록 uv를 점 순서가 아니라 실제 높이로 다시 계산한다
+    const pos = geo.attributes.position, uv = geo.attributes.uv;
+    for (let i = 0; i < pos.count; i++) uv.setY(i, (pos.getY(i) + BIN.h / 2) / BIN.h);
+    uv.needsUpdate = true;
+    return geo;
   }, []);
   const closed = phase === "analyzing";
   const lastScreen = useRef("");
@@ -426,7 +463,6 @@ function CloudBin({ layout, phase, shared, cb }: { layout: Layout; phase: Phase;
     grp.position.y = layout.bin.y + Math.sin(Math.PI * sh.hop) * 0.18;
     const sq = 1 + 0.08 * Math.sin(Math.PI * sh.hop * 2);
     grp.scale.set(sq, 2 - sq, sq);
-    if (puffs.current) puffs.current.scale.setScalar(THREE.MathUtils.damp(puffs.current.scale.x, 1 + sh.near * 0.18, 8, dt));
     if (lid.current) {
       // 뚜껑은 분석할 때만 위에서 내려와 닫힌다
       lid.current.rotation.x = THREE.MathUtils.damp(lid.current.rotation.x, closed ? 0 : -0.9, 5, dt);
@@ -443,29 +479,32 @@ function CloudBin({ layout, phase, shared, cb }: { layout: Layout; phase: Phase;
     }
   });
 
-  const tub = dark ? "#4d7aa0" : "#a9dcfb";
+  const weave = dark ? "#b9a58a" : "#ffffff"; // 짚 질감에 곱해지는 색 (다크는 한 단계 어둡게)
   const puff = dark ? "#dfe8f0" : "#ffffff";
   return (
     <group ref={g} position={layout.bin}>
-      <mesh geometry={body}><meshStandardMaterial color={tub} roughness={0.85} side={THREE.DoubleSide} /></mesh>
+      {/* 바구니 몸통(엮은 무늬) — 높이·반지름은 물리 충돌값(BIN)과 같다 */}
+      <mesh geometry={body}>
+        <meshStandardMaterial map={straw} color={weave} roughness={0.95} side={THREE.DoubleSide} />
+      </mesh>
+      {/* 윗부분 땋은 테두리 */}
+      <mesh position={[0, BIN.h / 2, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[BIN.rTop, 0.045, 12, 64]} />
+        <meshStandardMaterial color={dark ? "#a98a58" : "#c9984a"} roughness={0.95} />
+      </mesh>
+      {/* 양옆 손잡이 */}
+      {[-1, 1].map((s) => (
+        <mesh key={s} position={[s * 0.5, 0.12, 0]} rotation={[0, 0, (-s * Math.PI) / 2]}>
+          <torusGeometry args={[0.15, 0.03, 10, 24, Math.PI]} />
+          <meshStandardMaterial color={dark ? "#a98a58" : "#c9984a"} roughness={0.95} />
+        </mesh>
+      ))}
       {/* 얼굴 */}
       <mesh position={[-0.17, 0.02, 0.56]}><sphereGeometry args={[0.045, 16, 16]} /><meshStandardMaterial color="#25354d" /></mesh>
       <mesh position={[0.17, 0.02, 0.56]}><sphereGeometry args={[0.045, 16, 16]} /><meshStandardMaterial color="#25354d" /></mesh>
       <mesh position={[0, -0.09, 0.57]} rotation={[0, 0, Math.PI]}><torusGeometry args={[0.07, 0.016, 8, 20, Math.PI]} /><meshStandardMaterial color="#25354d" /></mesh>
       <mesh position={[-0.3, -0.06, 0.5]}><sphereGeometry args={[0.06, 16, 16]} /><meshStandardMaterial color="#ffb3c1" transparent opacity={0.7} /></mesh>
       <mesh position={[0.3, -0.06, 0.5]}><sphereGeometry args={[0.06, 16, 16]} /><meshStandardMaterial color="#ffb3c1" transparent opacity={0.7} /></mesh>
-      {/* 구름 테두리 */}
-      <group ref={puffs} position={[0, BIN.h / 2, 0]}>
-        {Array.from({ length: 12 }, (_, i) => {
-          const a = (i / 12) * Math.PI * 2;
-          return (
-            <mesh key={i} position={[Math.cos(a) * BIN.rTop, 0.02 + (i % 2) * 0.03, Math.sin(a) * BIN.rTop]}>
-              <sphereGeometry args={[0.13 + (i % 3) * 0.02, 20, 16]} />
-              <meshStandardMaterial color={puff} roughness={1} />
-            </mesh>
-          );
-        })}
-      </group>
       {/* 구름 뚜껑: 뒤쪽 경첩, 분석 중에는 닫힌다 */}
       <group position={[0, BIN.h / 2 + 0.05, -BIN.rTop]}>
         <group ref={lid} rotation={[-0.9, 0, 0]} scale={0.001}>
