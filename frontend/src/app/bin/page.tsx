@@ -4,7 +4,7 @@
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import * as THREE from "three";
-import { CloudMascot, EarthBuddy } from "@/entities/mascot/characters";
+import { charImg, CloudMascot, EarthBuddy } from "@/entities/mascot/characters";
 import { ChatPanel } from "@/features/ask-cloud/ChatPanel";
 import { PaperInput } from "@/features/cloud-lab/PaperInput";
 import { ResultCard } from "@/widgets/result-card/ResultCard";
@@ -220,8 +220,8 @@ export default function BinPage() {
                   {phase === "ready" && !opening && <span className="absolute inset-4 rounded-full bg-yellow/70 blur-2xl" aria-hidden />}
                   {opening ? (
                     <>
-                      <img src="/characters/cloud-joy.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ clipPath: "inset(0 50% 0 0)", animation: "split-left .75s ease-in forwards" }} />
-                      <img src="/characters/cloud-joy.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ clipPath: "inset(0 0 0 50%)", animation: "split-right .75s ease-in forwards" }} />
+                      <img {...charImg("cloud-joy")} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ clipPath: "inset(0 50% 0 0)", animation: "split-left .75s ease-in forwards" }} />
+                      <img {...charImg("cloud-joy")} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ clipPath: "inset(0 0 0 50%)", animation: "split-right .75s ease-in forwards" }} />
                     </>
                   ) : (
                     <CloudMascot mood={phase === "ready" ? "happy" : phase === "error" ? "error" : "thinking"} className="h-full w-full" />

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CountryBriefing } from "@/entities/country/CountryBriefing";
 import { Cited, SourceList } from "@/entities/evidence/Evidence";
-import { CloudMascot, type CloudMood, EarthBuddy } from "@/entities/mascot/characters";
+import { charImg, CloudMascot, type CloudMood, EarthBuddy } from "@/entities/mascot/characters";
 import { useDiscoveries } from "@/features/discovery/model";
 import { PM_STEPS } from "@/entities/country/pm";
 import type { CountryFeature, GlobeHandle } from "@/features/globe/GlobeView";
@@ -129,7 +129,12 @@ export default function EarthPage() {
                 className={cx(buttonClass(sosOn ? "primary" : "secondary", "sm"), "h-10")}>SOS</button>
               <button onClick={reset} className={cx(buttonClass("secondary", "sm"), "h-10")}>↺ {t("reset")}</button>
             </div>
-            <img src="/characters/cloud-default.png" alt="" aria-hidden className="pointer-events-none absolute top-[20%] right-[5%] z-10 w-14 opacity-90 anim-float" />
+            {/* 구름과 지구 친구는 지구본 위 오른쪽 위에 나란히 (지구본·범례를 가리지 않게) */}
+            <img {...charImg("cloud-default")} alt="" aria-hidden decoding="async" className="pointer-events-none absolute top-[20%] right-[5%] z-10 w-14 opacity-90 anim-float" />
+            {/* EarthBuddy 루트는 relative라서 위치는 바깥 래퍼가 잡는다 (className에 absolute를 주면 relative에 덮여 엉뚱한 곳에 뜬다) */}
+            <div className="absolute top-[17%] right-[calc(5%+4rem)] z-10 h-16 w-16 sm:right-[calc(5%+4.25rem)]">
+              <EarthBuddy className="h-full w-full" mood={ask?.answer ? "joy" : undefined} />
+            </div>
             <GlobeView ref={globe} selected={selected?.properties.iso3 ?? null} onSelect={select}
               events={markers} onReady={onReady} pm25={sos?.pm25.values} sos={sosOn} />
             {sosOn && sos?.pm25.status === "ok" && (
@@ -145,7 +150,6 @@ export default function EarthPage() {
                 </div>
               </div>
             )}
-            <EarthBuddy className="absolute right-2 bottom-2 z-10 h-24 w-24 sm:h-28 sm:w-28" mood={ask?.answer ? "joy" : undefined} />
           </div>
         </section>
 

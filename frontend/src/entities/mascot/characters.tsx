@@ -5,6 +5,12 @@ import { useEffect, useState } from "react";
 import { useIdle } from "@/shared/lib/idle";
 import { cx } from "@/shared/ui/primitives";
 
+/** 고해상도 화면에서 깨지지 않게 @2x·@3x(scripts/upscale-characters.py로 생성)를 함께 준다 */
+export const charImg = (name: string) => ({
+  src: `/characters/${name}.png`,
+  srcSet: `/characters/${name}.png 1x, /characters/${name}@2x.png 2x, /characters/${name}@3x.png 3x`,
+});
+
 export type CloudMood = "idle" | "curious" | "thinking" | "happy" | "concerned" | "presenting" | "sleepy" | "error";
 
 const CLOUD: Record<CloudMood, { src: string; anim: string }> = {
@@ -26,7 +32,7 @@ export function CloudMascot({ mood, className, label }: { mood: CloudMood; class
     <div className={cx("relative select-none", className)} role="img" aria-label={label ?? `cloud ${m}`}>
       {/* 상태가 바뀌면 key가 바뀌어 말랑하게 한 번 눌린다 */}
       <div key={m} className="anim-squish h-full w-full">
-        <img src={`/characters/${CLOUD[m].src}.png`} alt="" draggable={false}
+        <img {...charImg(CLOUD[m].src)} alt="" draggable={false} decoding="async"
           className={cx("h-full w-full object-contain drop-shadow-[0_10px_18px_rgba(47,143,208,0.18)]", CLOUD[m].anim)} />
       </div>
       {m === "thinking" && (
@@ -67,9 +73,10 @@ export function EarthBuddy({ className, mood }: { className?: string; mood?: "de
     : { src: "earth-default", anim: "anim-float" };
 
   return (
-    <button type="button" className={cx("relative select-none", className)} aria-label="earth buddy"
+    // 바깥에서 absolute/fixed로 위치를 주면 relative를 붙이지 않는다 (붙이면 위치 지정이 덮여 엉뚱한 곳에 뜬다)
+    <button type="button" className={cx(!/(absolute|fixed)/.test(className ?? "") && "relative", "select-none", className)} aria-label="earth buddy"
       onClick={() => { setPoke(true); setTimeout(() => setPoke(false), 1200); }}>
-      <img key={act.src + step} src={`/characters/${act.src}.png`} alt="" draggable={false}
+      <img key={act.src + step} {...charImg(act.src)} alt="" draggable={false} decoding="async"
         className={cx("h-full w-full object-contain drop-shadow-[0_14px_22px_rgba(47,143,208,0.2)]", act.anim)} />
     </button>
   );
