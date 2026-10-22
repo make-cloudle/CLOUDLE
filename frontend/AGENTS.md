@@ -18,10 +18,10 @@ Next.js 16 (App Router) · React 19 · React Three Fiber · react-globe.gl · Zu
 ## 2. 구조 — Feature-Sliced Design
 ```
 src/
-  app/        라우트(화면 조립만): / · /bin · /vs · /detective · /book · /explore · /about
+  app/        라우트(화면 조립만): / · /bin · /vs · /talk · /book · /explore · /about
   widgets/    여러 기능을 묶은 화면 블록: header · footer · result-card
-  features/   사용자 행동 단위: globe · cloud-lab(던지기·노트·업로드) · ask-cloud · compare · discovery
-  entities/   도메인 표현: mascot(지구·구름 캐릭터) · country · evidence(근거 번호·출처)
+  features/   사용자 행동 단위: globe · cloud-lab(던지기·노트·업로드) · ask-cloud · compare · discovery · eco-bucket · talk(채팅)
+  entities/   도메인 표현: mascot(지구·구름 캐릭터) · country · evidence(근거 번호·출처) · eco-bucket · talk(채팅 타입)
   shared/     ui(디자인 시스템) · lib(i18n·prefs·idle) · api(게이트웨이 클라이언트)
 ```
 - **아래 계층만 import한다**: `app → widgets → features → entities → shared`. 같은 계층끼리 서로 import하지 않는다.
@@ -31,9 +31,24 @@ src/
 - 토큰: `src/app/globals.css` (`--bg`, `--sky`, `--mint`, `--yellow`, `--lavender`, `--ink`, `--series-a/b` …), 라이트/다크 둘 다.
 - 컴포넌트: `src/shared/ui/primitives.tsx` (Button·Chip·Card·Tag·Input·Alert·Segmented). 새 버튼·카드를 직접 만들지 말고 여기서 확장한다.
 - 캐릭터: `public/characters/*.png` (사용자 제공 AI 생성 이미지, 사용 허락됨). `entities/mascot`의 `CloudMascot`·`EarthBuddy`로만 쓴다. 30초 무입력 시 대기 동작(`useIdle`).
+  원본이 약 150px이라 고해상도 화면에서 깨지지 않게 `@2x`·`@3x`를 함께 둔다(`scripts/upscale-characters.py`, cmd에서 `.venv` python으로 실행). `<img>`는 직접 경로 대신 `charImg(name)`(src+srcSet)을 쓴다. 표시 크기는 원본의 1배 안팎(≈64~112px)을 넘기지 않는다.
+  홈 지구본: 구름은 오른쪽 위, 지구 친구는 그 왼쪽에 나란히 (지구본·범례를 가리지 않게).
 - 아이콘은 라인 SVG(`shared/ui/icons.tsx`). 이모지로 대신하지 않는다.
 - 문구는 `shared/lib/i18n.ts`에 4개 언어(ko·en·ja·zh)로 추가한다. 입력 안내는 "예: …"가 아니라 "~를 적어주세요" 형태.
 - 모바일: 제목·본문 왼쪽 정렬, 가로 스크롤 없음, 드래그 대신 버튼으로도 같은 흐름이 가능해야 한다.
+
+## 3-1. 구름 광장 (`/talk`, `features/talk`)
+- **목록 → 방**: 미참여 방은 "○○에 참여하시겠습니까?" 확인 후 `join`, 참여 중인 방(목록에 "참여 중")은 바로 `open`. 방에 들어가면 그 방만 화면 가득(헤더 "구름 광장 · 채팅방" + 방 이름). "채팅방" 버튼 = `close`(참여 유지·알림 없음), "나가기" = `exit`(퇴장 알림).
+- 위치를 바깥에서 정하는 캐릭터는 `absolute` 래퍼로 감싸거나 `EarthBuddy`에 `absolute`를 넘긴다(루트 `relative`가 덮지 않게 처리됨).
+- socket.io-client는 `features/talk/model.ts`(zustand 스토어)에서만 쓴다. 화면은 스토어만 본다. 재연결되면 보던 방에 자동 재입장한다.
+- 말풍선 색은 토큰만 쓴다: `--bubble-mine`(=accent) / `--bubble-other`(accent를 연하게 한 **불투명** 색, 라이트 `#dde5f0` · 다크 `#2e3d56`), 대화 영역 `--chat-bg`. 투명도(`/60` 등)로 만들지 않는다 — 뒤 배경이 비쳐 구분이 흐려진다.
+- 반응은 말풍선을 누르면 이모티콘 6개(👍❤️😂😮😢🌱)가 뜨고, 받은 반응은 아래에 "이모티콘 숫자"로 표시.
+- 에코 버킷: `features/eco-bucket`(localStorage). Cloud Lab 결과 카드(`widgets/result-card`)에서 결과 전체·방법별로 담고, 채팅 입력창의 "에코 버킷 공유" 토글 리스트에서 제목을 누르면 바로 공유 → `BucketCard`(큰 카드)로 표시.
+- 말풍선 규칙은 `features/talk/timeline.ts`(순수 함수): 같은 사람·같은 분 묶음은 **마지막 말풍선에만 시:분**(마우스를 올리면 초까지), 묶음 첫 말풍선에만 닉네임·아바타, 날짜가 바뀌면 구분선. 내 말풍선은 오른쪽(시간은 왼쪽), 남의 말풍선은 왼쪽(시간은 오른쪽). 입장·퇴장은 가운데 알림.
+- 한글 IME 조합 중 Enter는 전송하지 않는다 (`isComposing`).
+- 메모 ↔ Cloud Lab 노트 ↔ 발견 노트 연결은 `app/talk/page.tsx`(app 계층)에서만 한다 — features끼리 import 금지 규칙 유지.
+- 신원은 서버가 Origin 포트로 정한다(3000=지구미, 3001=예나). 같은 폴더에서 두 dev 서버를 띄우려면 `pnpm dev:both`(포트별 `NEXT_DIST_DIR` 분리, `scripts/dev-as.mjs`).
+- API 주소는 `apiBase()` — 지정이 없으면 현재 호스트의 :4000이라 휴대폰(LAN IP)에서도 동작한다.
 
 ## 4. 데이터 규칙
 - API는 `shared/api/client.ts`만 쓴다 (기본 `http://localhost:4000` 게이트웨이).

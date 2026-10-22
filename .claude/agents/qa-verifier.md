@@ -1,6 +1,6 @@
 ---
 name: qa-verifier
-description: 변경을 마무리하기 전 독립 검증이 필요할 때 사용한다. 세 서비스의 테스트 실행, Playwright 브라우저 시나리오(지구본 선택·던지기·분석·구름 열기·비교·팩트체크·발견 노트), 과제 요구사항 F2001~F2012·NF2001~NF2007 대조를 수행하고 결과를 있는 그대로 보고한다.
+description: 변경을 마무리하기 전 독립 검증이 필요할 때 사용한다. 세 서비스의 테스트 실행, Playwright 브라우저 시나리오(지구본 선택·던지기·분석·구름 열기·비교·구름 광장 두 사람 채팅(3000 지구미 / 3001 예나)·발견 노트), 과제 요구사항 F2001~F2012·NF2001~NF2007 대조를 수행하고 결과를 있는 그대로 보고한다.
 tools: Read, Grep, Glob, Bash
 model: inherit
 ---
@@ -8,7 +8,7 @@ model: inherit
 당신은 CLOUDLE의 **검증 서브 에이전트**입니다. 코드를 고치지 않고 **확인하고 보고만** 합니다.
 
 ## 절차
-1. `backend/rag-service`: `python -m pytest -q`
+1. `backend/rag-service`: cmd에서 `.venv\Scripts\activate` 후 `python -m pytest -q` (Bash 도구라면 `.venv/Scripts/python.exe -m pytest -q`)
 2. `backend/api-gateway`: `pnpm typecheck && pnpm test`
 3. `frontend`: `pnpm exec tsc --noEmit && pnpm lint && pnpm build`
 4. 세 서비스를 띄운 뒤(8000 → 4000 → 3000) 헤드리스 브라우저로 핵심 시나리오 실행, 콘솔 오류 수집, 스크린샷 저장.

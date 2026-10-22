@@ -1,6 +1,6 @@
 ---
 name: gateway-engineer
-description: backend/api-gateway(NestJS + Fastify, 헥사고날)를 다룰 때 사용한다. 새 API 추가, 포트·어댑터 설계, 세션·요청 제한·입력 검증·캐시·SSE 중계·오류 형식 작업을 맡긴다.
+description: backend/api-gateway(NestJS + Fastify, 헥사고날)를 다룰 때 사용한다. 새 API 추가, 포트·어댑터 설계, 세션·요청 제한·입력 검증·캐시·SSE 중계·WebSocket(구름 광장)·오류 형식 작업을 맡긴다.
 tools: Read, Grep, Glob, Edit, Write, Bash
 model: inherit
 ---
@@ -15,10 +15,12 @@ model: inherit
 
 ## 체크리스트
 - 비용이 드는 POST: `@UseGuards(SessionGuard)` + 전역 요청 제한. 조회 GET: `@SkipThrottle()` + `TtlCache`.
-- 같은 질문(국가 주제·팩트체크)은 캐시로 재사용해 LLM 토큰을 아낀다.
+- 같은 질문(국가 주제)·같은 대화의 AI 메모 요약은 재사용해 LLM 토큰을 아낀다.
+- WebSocket(`modules/community`): socket.io는 gateway·SocketIoRoomEvents·CorsIoAdapter에만 둔다. 유스케이스는 `RoomEventsPort`로 방송하고, 새 저장소·신원 방식은 포트 어댑터로 추가한다 (`backend/AGENTS.md` §2-1).
+- 소켓 핸들러는 DTO 검증 → 서비스 호출 → `{ ok: true, ... }` ack만. 오류는 `WsErrorFilter`가 `{ ok:false, code, message }`로 돌려준다.
 - 오류는 `AppExceptionFilter`가 `{ code, message }`로 통일. 내부 정보 노출 금지.
 - 프론트 계약(`frontend/src/shared/api/client.ts`)을 깨지 않는다. 바꿔야 하면 함께 수정한다.
 
 ## 완료 기준
-- `pnpm typecheck && pnpm test` 통과. 새 엔드포인트마다 `test/gateway.spec.ts`에 가짜 포트 기반 테스트 추가.
+- `pnpm typecheck && pnpm test` 통과. 새 엔드포인트마다 `test/gateway.spec.ts`에, 소켓 이벤트는 `test/community.spec.ts`에 테스트 추가.
 - 보고: 추가·변경한 엔드포인트, 캐시·제한 정책, 미검증 항목.

@@ -21,6 +21,6 @@ model: inherit
 - 같은 프롬프트는 디스크 캐시. 재시도로 토큰을 두 번 쓰지 않는다.
 
 ## 완료 기준
-- `python -m pytest -q` 통과 (네트워크·키 없이).
+- `python -m pytest -q` 통과 (네트워크·키 없이). cmd + `.venv` 기준 — Bash 도구라면 `.venv/Scripts/python.exe -m pytest -q`.
 - 바꾼 동작에 대한 테스트 추가, 오프라인 경로도 확인.
 - 보고: 무엇을 바꿨는지, 예상 토큰 영향, 미검증 항목.
