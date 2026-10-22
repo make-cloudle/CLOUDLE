@@ -138,7 +138,7 @@ export default function BinPage() {
     setTimeout(() => {
       setPhase("opened");
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
-    }, 750);
+    }, 850);
   };
 
   const restart = () => { abortRef.current?.abort(); resetAll(); setKind("paper"); setCrumple(0); setOpening(false); };
@@ -219,10 +219,8 @@ export default function BinPage() {
                   className={cx("relative anim-rise", phase === "ready" ? "h-36 w-48 cursor-pointer" : "h-28 w-36")}>
                   {phase === "ready" && !opening && <span className="absolute inset-4 rounded-full bg-yellow/70 blur-2xl" aria-hidden />}
                   {opening ? (
-                    <>
-                      <img {...charImg("cloud-joy")} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ clipPath: "inset(0 50% 0 0)", animation: "split-left .75s ease-in forwards" }} />
-                      <img {...charImg("cloud-joy")} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ clipPath: "inset(0 0 0 50%)", animation: "split-right .75s ease-in forwards" }} />
-                    </>
+                    // 갈라지지 않고 그대로 옆으로 흘러가며 흐려진다
+                    <img {...charImg("cloud-joy")} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ animation: "drift-away .9s ease-in forwards" }} />
                   ) : (
                     <CloudMascot mood={phase === "ready" ? "happy" : phase === "error" ? "error" : "thinking"} className="h-full w-full" />
                   )}
