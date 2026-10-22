@@ -44,6 +44,6 @@ cd frontend && pnpm dev:both                            # 웹 :3000(지구미) +
 과제 기본 UI(cmd, `.venv` 활성화 후): `cd backend\rag-service && streamlit run streamlit_app.py`
 
 ## 📚 문서
-[기획서](docs/01-planning/PLAN.md) · [요구사항](docs/02-requirements/SRS.md) · [구현 매핑](docs/02-requirements/TRACEABILITY.md) · [아키텍처](docs/03-design/ARCHITECTURE.md) · [RAG 설계](docs/03-design/RAG_PIPELINE.md) · [데이터](docs/04-data/DATA_SOURCES.md) · [검증](docs/05-verification/VERIFICATION.md) · [구름 광장 리팩토링·트러블슈팅](docs/05-verification/REFACTOR_COMMUNITY.md) · [에이전트 하네스](AGENTS.md)
+[기획서](docs/01-planning/PLAN.md) · [요구사항](docs/02-requirements/SRS.md) · [구현 매핑](docs/02-requirements/TRACEABILITY.md) · [아키텍처](docs/03-design/ARCHITECTURE.md) · [RAG 설계](docs/03-design/RAG_PIPELINE.md) · [데이터](docs/04-data/DATA_SOURCES.md) · [검증](docs/05-verification/VERIFICATION.md) · [구름 광장 리팩토링·트러블슈팅](docs/05-verification/REFACTOR_COMMUNITY.md) · [배포(Oracle Cloud + Docker)](docs/06-deploy/ORACLE_CLOUD.md) · [에이전트 하네스](AGENTS.md)
 
 > 토큰 예산 70,000: LLM은 최종 답변에만 쓰고, 임베딩은 내장, 같은 질문은 캐시합니다.

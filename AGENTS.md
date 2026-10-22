@@ -51,6 +51,7 @@ docs/                   기획 · 요구사항 · 설계 · 데이터 · 검증
 | 게이트웨이 | `cd backend/api-gateway && pnpm install && pnpm dev` |
 | 프론트엔드 | `cd frontend && pnpm install && pnpm dev` (3000 = 지구미) |
 | 두 사람으로 채팅 테스트 | `cd frontend && pnpm dev:both` (3000 = 지구미, 3001 = 예나 · 휴대폰은 `http://<PC LAN IP>:3000`) |
+| 백엔드 배포 (Docker) | `cp .env.example .env` → `docker compose up -d --build` — 프론트는 Vercel(`NEXT_PUBLIC_API_BASE`), 서버는 Oracle Cloud. 가이드: `docs/06-deploy/ORACLE_CLOUD.md` |
 | Streamlit (과제 UI, **cmd**) | `.venv` 활성화 후 `streamlit run streamlit_app.py` |
 | 테스트 | `python -m pytest -q` (rag-service, **cmd + .venv**) · `pnpm test` (gateway) · `pnpm lint && pnpm build` (frontend) |
 

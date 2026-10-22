@@ -75,6 +75,13 @@ streamlit_app.py    과제 기본 UI
 - 국가를 누르면 **핵심 지표(대기질·폐기물·자연현상 3건)만** 조회한다. 인구·관련 문서는 `detail=true`일 때만.
 - 외부 호출은 `sources/http.py`의 `get_json`(디스크 캐시·간격·재시도)만 사용.
 
+## 3-1. 배포 (Docker)
+- `backend/api-gateway/Dockerfile`, `backend/rag-service/Dockerfile`, 루트 `docker-compose.yml`(caddy → gateway → rag), `deploy/Caddyfile`. 가이드는 `docs/06-deploy/ORACLE_CLOUD.md`.
+- 운영 설정은 환경변수로만: `CORS_ORIGINS`(프론트 주소), `ALLOW_LAN_ORIGINS=false`, `COMMUNITY_IDENTITIES=`(비움), `GMS_KEY`(서버 `.env`에만). rag-service는 `RATE_LIMIT_ENABLED=false`(게이트웨이가 제한).
+- **WebSocket은 CORS만으로 막히지 않는다.** `core/socket-io.adapter.ts`의 `allowRequest`가 HTTP와 같은 Origin 규칙으로 직접 거절한다 (테스트: `허용되지 않은 Origin은 소켓 접속이 거절된다`).
+- 게스트 식별자는 세션 ID **전체**(`g:<sid>`), 앞 4글자는 화면 표시 이름에만 쓴다 (앞 4글자가 같아도 다른 사람).
+- 채팅 상태가 메모리라 **인스턴스 1개만** 띄운다. 늘리려면 `MessageStorePort`·`RoomEventsPort`를 Redis 어댑터로 교체.
+
 ## 4. 검증
 ```bash
 :: cmd — rag-service의 .venv는 cmd 기준
