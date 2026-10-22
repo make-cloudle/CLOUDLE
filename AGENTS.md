@@ -7,14 +7,15 @@
 
 ## 1. 서비스 한 줄 요약
 **CLOUDLE — Explore the Earth. Uncover the Truth.**
-지구본에서 환경 문제를 발견하고 → 구름에 증거를 모아 → RAG로 분석하고 → 새로운 사실을 발견 노트에 남기는 인터랙티브 환경 탐험 서비스. 로그인 없이 모든 기능을 쓴다.
+지구본에서 환경 문제를 발견하고 → 구름에 증거를 모아 → RAG로 분석하고 → 새로운 사실을 발견 노트에 남기는 인터랙티브 환경 탐험 서비스. 로그인 없이 모든 기능을 쓰고, **구름 광장**에서 다른 사람과 실천을 나눈다.
 
 | 기능 | 화면 | 핵심 |
 |---|---|---|
 | Earth SOS | `/` | 3D 지구본 · PM2.5 레이어 · 국가 핵심 지표 · 구름에게 묻기 |
 | Cloud Lab | `/bin` | 노트·쓰레기를 던져 넣고 RAG로 수리·재사용·재활용 분석 |
 | Planet VS | `/vs` | 두 나라 비교 · 연도별 변화(타임머신) · 차이의 배경 |
-| Eco Detective | `/detective` | 환경 주장 팩트체크 (근거 없으면 판정 보류) |
+| 구름 광장 (Community) | `/talk` | 주제별 실시간 채팅방(WebSocket, 들어가면 그 방만 전체 화면) · 사진/파일 · 이모티콘 반응 · CLOUDLE MEMO · 에코 버킷 공유 · AI 메모 정리 |
+| 에코 버킷 | `/bin` 결과 · `/book` · `/talk` | Cloud Lab 결과·방법을 담아 두는 개인 리스트(브라우저 저장) → 채팅방에 카드로 공유 |
 | Discovery Book | `/book` | 알아낸 사실과 출처 자동 저장 (브라우저에만) |
 
 ## 2. 구조
@@ -25,12 +26,18 @@ backend/rag-service/    Python · LangGraph · ChromaDB · Streamlit (과제 필
 docs/                   기획 · 요구사항 · 설계 · 데이터 · 검증
 ```
 요청 흐름: `브라우저 → api-gateway(:4000, 세션·요청제한·검증·캐시) → rag-service(:8000, 내부)`.
+실시간 채팅: `브라우저 ⇄ socket.io(:4000/community) → CommunityService → (AI 메모 정리만) rag-service`.
 프론트엔드는 rag-service를 직접 호출하지 않는다.
+
+> **Phase 7-2 (리팩토링):** 입장/퇴장을 카카오톡식 참여 모델로, 방 전체 화면, 이모티콘 반응, 에코 버킷, 말풍선 토큰, 캐릭터 고해상도. 경위는 [`docs/05-verification/REFACTOR_COMMUNITY.md`](docs/05-verification/REFACTOR_COMMUNITY.md).
+>
+> **Phase 7 변경:** 질문마다 LLM을 쓰던 Eco Detective(`/detective`, 게이트웨이 `/api/factcheck`)를 화면·게이트웨이에서 제거하고 구름 광장으로 바꿨다. LLM은 지구본(국가 질문)·Cloud Lab·AI 메모 정리 버튼에서만 쓴다. rag-service의 `factcheck.py`는 Streamlit·테스트 호환을 위해 남겨 두었다.
 
 ## 3. 반드시 지킬 것 (모든 에이전트 공통)
 1. **수치를 만들지 않는다.** 환경 수치는 API/데이터에서만 가져오고 출처·단위·기준연도/관측시각을 함께 보여 준다. 없으면 "조회 불가".
 2. **근거 없는 답을 하지 않는다.** RAG 답변은 `[근거 n]`과 실제 출처가 1:1로 맞아야 하고, 근거가 없으면 "확인할 수 없음".
 3. **토큰 예산 70,000.** LLM은 최종 답변 생성(P3)에만 기본 사용, 임베딩은 내장(로컬), 같은 질문은 캐시. 예산을 넘기면 자동으로 오프라인 모드.
+   채팅 자체는 LLM을 부르지 않는다. **AI 메모 정리 버튼**만 최근 20줄을 rag-service로 보내고(같은 대화 재요약은 재사용, 방마다 20초 쿨다운), 실패·예산 소진 시 규칙 요약.
 4. **키는 코드·커밋에 넣지 않는다.** GMS 키는 `backend/.env.local`(git 무시)에만. `.env.example`에는 빈 값.
 5. **이용조건이 확인된 데이터만 색인한다.** 출처 대장은 `docs/04-data/DATA_SOURCES.md`.
 6. **과제 필수 F2001~F2012, NF2001~NF2007을 깨지 않는다.** 구현 위치는 `docs/02-requirements/TRACEABILITY.md`.
@@ -38,11 +45,15 @@ docs/                   기획 · 요구사항 · 설계 · 데이터 · 검증
 ## 4. 명령어
 | 목적 | 명령 |
 |---|---|
-| RAG 서비스 | `cd backend/rag-service && python -m uvicorn cloudle.api.main:app --port 8000` |
+| RAG 서비스 (**cmd**) | `cd backend\rag-service` → `.venv\Scripts\activate` → `python -m uvicorn cloudle.api.main:app --port 8000` |
 | 게이트웨이 | `cd backend/api-gateway && pnpm install && pnpm dev` |
-| 프론트엔드 | `cd frontend && pnpm install && pnpm dev` |
-| Streamlit (과제 UI) | `cd backend/rag-service && streamlit run streamlit_app.py` |
-| 테스트 | `python -m pytest -q` (rag-service) · `pnpm test` (gateway) · `pnpm lint && pnpm build` (frontend) |
+| 프론트엔드 | `cd frontend && pnpm install && pnpm dev` (3000 = 지구미) |
+| 두 사람으로 채팅 테스트 | `cd frontend && pnpm dev:both` (3000 = 지구미, 3001 = 예나 · 휴대폰은 `http://<PC LAN IP>:3000`) |
+| Streamlit (과제 UI, **cmd**) | `.venv` 활성화 후 `streamlit run streamlit_app.py` |
+| 테스트 | `python -m pytest -q` (rag-service, **cmd + .venv**) · `pnpm test` (gateway) · `pnpm lint && pnpm build` (frontend) |
+
+> **Python은 cmd에서.** rag-service의 `.venv`는 cmd(`.venv\Scripts\activate`)로 만들어 두었다. Git Bash로 실행하면 venv가 잡히지 않아 `No module named pytest` 등이 난다. 에이전트가 Bash 도구로 돌려야 하면 `backend/rag-service/.venv/Scripts/python.exe -m ...`처럼 venv의 python을 직접 지정한다.
+> 개발 서버(3000·3001·4000·8000)를 띄웠다가 끝낼 때는 **실제 node/python 프로세스까지** 종료됐는지 포트로 확인한다 (래퍼만 멈추면 포트가 남아 `EADDRINUSE`).
 
 ## 5. 작업 방식
 - 브랜치: `phase-N/주제` → 공통 MR 템플릿(`.gitlab/merge_request_templates/Default.md`) → `main` 머지.
