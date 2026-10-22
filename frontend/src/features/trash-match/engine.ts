@@ -3,9 +3,11 @@
  *
  * 종류 6가지(0 비닐 · 1 플라스틱 · 2 캔 · 3 종이 · 4 유리 · 5 일반) 중 같은 것 3개 이상이 가로·세로로 이어지면 터진다.
  * 특수 블록
- *   4개 한 줄        → 줄 폭탄(line-h/line-v): 터지면 그 줄 전체가 사라진다
- *   L·T자(가로+세로) → 구역 폭탄(bomb): 터지면 주변 5×5가 사라진다
- *   5개 이상 한 줄   → 분리수거 폭탄(color): 옆 칸과 바꾸면 그 종류가 전부 사라진다
+ *   4개 한 줄        → 줄 폭탄(line-h/line-v): 같은 종류와 함께 맞춰 터질 때 그 줄 전체가 사라진다
+ *   L·T자(가로+세로) → 구역 폭탄(bomb): 같은 종류와 함께 맞춰 터질 때 주변 5×5가 사라진다
+ *   5개 이상 한 줄   → 분리수거 폭탄(color): 색이 없어서 맞출 수 없고, 옆 칸과 바꾸면 그 종류가 전부 사라진다
+ * 줄·구역 폭탄은 옮기기만 해서는 발동하지 않는다 (같은 종류 3개 이상에 포함되어야 한다).
+ * 매치를 만들지 못하는 교환은 되돌린다.
  * 연쇄(콤보): 한 번의 이동에서 연달아 터질 때마다 점수 배수 ×1 → ×2 → ×3 → ×4(최대)
  */
 export const ROWS = 8;
@@ -95,7 +97,7 @@ export function hasMove(b: Board): boolean {
         if (!inRange(r2, c2)) continue;
         const t = clone(b);
         [t[r][c], t[r2][c2]] = [t[r2][c2], t[r][c]];
-        if (t[r][c]?.special || t[r2][c2]?.special || findRuns(t).length > 0) return true;
+        if (t[r][c]?.special === "color" || t[r2][c2]?.special === "color" || findRuns(t).length > 0) return true;
       }
     }
   }
@@ -154,13 +156,14 @@ export function resolveMove(ctx: Ctx, board: Board, a: Cell, b: Cell): { steps: 
   cur[a[0]][a[1]] = tb;
   cur[b[0]][b[1]] = ta;
 
-  // 특수 블록을 바꿔 넣으면 그 자리에서 발동한다 (분리수거 폭탄은 맞바꾼 종류를 모두 지운다)
+  // 분리수거 폭탄만 바꿔 넣는 것으로 발동한다 (맞바꾼 종류를 모두 지운다).
+  // 줄·구역 폭탄은 같은 종류와 함께 맞춰 터질 때만 발동하므로 여기서는 건드리지 않는다.
   const forced: Cell[] = [];
   const colorTarget = new Map<number, number>();
   const trigger = (self: Tile, at: Cell, partner: Tile) => {
-    if (!self.special) return;
+    if (self.special !== "color") return;
     forced.push(at);
-    if (self.special === "color" && partner.kind >= 0) colorTarget.set(key(at[0], at[1]), partner.kind);
+    if (partner.kind >= 0) colorTarget.set(key(at[0], at[1]), partner.kind);
   };
   trigger(ta, b, tb); // ta는 이제 b 칸에 있다
   trigger(tb, a, ta);
@@ -219,7 +222,7 @@ export function resolveMove(ctx: Ctx, board: Board, a: Cell, b: Cell): { steps: 
     }
     pending = [];
 
-    // 폭발에 휘말린 자리에는 새 특수 블록을 만들지 않는다
+    // 매치로 만든 자리는 폭발 범위여도 새 특수 블록으로 남는다. 다른 특수 블록의 폭발로만 지워지는 자리에는 만들지 않는다
     const keep = created.filter((m) => !expanded.has(key(m.r, m.c)) && !fired.has(key(m.r, m.c)));
     keep.forEach((m) => clear.delete(key(m.r, m.c)));
 
