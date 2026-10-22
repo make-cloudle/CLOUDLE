@@ -48,7 +48,8 @@
 | C10 | `rag-service/sources/environment.py::global_sos` · `app/page.tsx` · `features/globe` | ✅ |
 | C11 | `features/cloud-lab/BinStage.tsx` (던지기 물리) · `app/bin/page.tsx` | ✅ |
 | C12 | `wb_series` · `features/compare/TrendChart.tsx` · `app/vs/page.tsx` | ✅ |
-| C13 | `rag/factcheck.py` · `app/detective/page.tsx` | 🟡 판정은 LLM 키 필요 |
+| C13 | ~~Eco Detective~~ → 구름 광장: `api-gateway/modules/community` · `rag/memo.py` · `app/talk/page.tsx` · `test/community.spec.ts` | ✅ (Phase 7에서 교체) |
+| C16 | 에코 버킷: `features/eco-bucket` · `widgets/result-card` 담기 · `features/talk/BucketCard.tsx` · `bucket:share` | ✅ |
 | C14 | `features/discovery/model.ts` · `app/book/page.tsx` | ✅ |
 | C15 | `rag/llm.py` (단계·예산·캐시) · `test_llm_budget_and_stages` | ✅ |
 | 게이트웨이 | `backend/api-gateway` (세션·요청 제한·캐시·SSE) · `test/gateway.spec.ts` | ✅ |
