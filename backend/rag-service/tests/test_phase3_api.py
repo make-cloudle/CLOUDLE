@@ -161,3 +161,14 @@ def test_sos_series_and_factcheck(monkeypatch):
     body = r.json()
     assert r.status_code == 200 and body["verdict"] == "insufficient" and body["engine"] == "offline"  # 키 없으면 판정 보류
     assert all(s["url"] or s["kind"] != "wikipedia" for s in body["answer"]["sources"])
+
+
+def test_memo_summarize_offline_uses_only_given_lines():
+    lines = ["지구미: 고장난 전자레인지 버려야 할까요?", "예나: 대형폐기물 스티커 붙여서 배출하면 돼요", "지구미: 수리비가 더 나올 것 같아서요"]
+    r = client.post("/api/memo/summarize", headers=SID, json={"lines": lines})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["engine"] == "offline"
+    assert body["purpose"] in ("repair", "disposal")
+    assert "대형폐기물" in body["note"]
+    assert client.post("/api/memo/summarize", headers=SID, json={"lines": []}).status_code == 422

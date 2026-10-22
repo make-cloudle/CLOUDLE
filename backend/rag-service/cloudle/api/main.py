@@ -22,6 +22,7 @@ from cloudle.rag import uploads, vision
 from cloudle.rag.chat import chat_store
 from cloudle.rag.country import ask_country
 from cloudle.rag.factcheck import factcheck
+from cloudle.rag.memo import summarize_memo
 from cloudle.rag.pipeline import Paper, UserFacingError, analyze, ask
 from cloudle.rag.search import condition_search
 from cloudle.rag.store import evidence_collection, item_collection
@@ -215,6 +216,18 @@ class SearchBody(BaseModel):
 @app.post("/api/search")
 def search(body: SearchBody, sid: str = Depends(guarded_session)):
     return condition_search(body.query)
+
+
+# ── Community: 채팅 → CLOUDLE MEMO ────────────────────────────────────
+class MemoBody(BaseModel):
+    lines: list[str] = Field(min_length=1, max_length=30)
+    lang: str = "ko"
+
+
+@app.post("/api/memo/summarize")
+def memo_summarize(body: MemoBody, sid: str = Depends(guarded_session)):
+    """게이트웨이가 보낸 최근 대화 몇 줄만으로 메모 필드를 채운다 (LLM 없으면 규칙 요약)."""
+    return summarize_memo(body.lines, _lang(body.lang))
 
 
 @app.delete("/api/session")
