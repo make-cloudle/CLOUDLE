@@ -30,6 +30,12 @@
   --paper: #fffdf7;
   --paper-line: rgba(120, 200, 248, 0.32);
   --paper-margin: rgba(233, 120, 79, 0.4);
+  /* 채팅: 상대 말풍선은 내 말풍선(accent)을 연하게 한 불투명 색 */
+  --chat-bg: #f4f7fb;
+  --bubble-mine: #25354d;
+  --bubble-mine-ink: #ffffff;
+  --bubble-other: #dde5f0;
+  --bubble-other-ink: #25354d;
   --shadow-soft: 0 1px 2px rgba(37, 53, 77, 0.04), 0 8px 24px rgba(37, 53, 77, 0.06);
   --shadow-float: 0 18px 40px rgba(47, 143, 208, 0.16);
   color-scheme: light;
@@ -60,6 +66,11 @@
   --paper: #222d3f;
   --paper-line: rgba(120, 200, 248, 0.18);
   --paper-margin: rgba(242, 154, 120, 0.35);
+  --chat-bg: #172131;
+  --bubble-mine: #e4ecf6;
+  --bubble-mine-ink: #141c29;
+  --bubble-other: #2e3d56;
+  --bubble-other-ink: #eef3f9;
   --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25);
   --shadow-float: 0 18px 40px rgba(0, 0, 0, 0.35);
   color-scheme: dark;
@@ -88,6 +99,12 @@
   --color-series-a: var(--series-a);
   --color-series-b: var(--series-b);
   --color-accent-ink: var(--accent-ink);
+  --color-paper: var(--paper);
+  --color-chat-bg: var(--chat-bg);
+  --color-bubble-mine: var(--bubble-mine);
+  --color-bubble-mine-ink: var(--bubble-mine-ink);
+  --color-bubble-other: var(--bubble-other);
+  --color-bubble-other-ink: var(--bubble-other-ink);
   --font-sans: "Pretendard Variable", Pretendard, "Hiragino Sans", "Noto Sans JP", "PingFang SC", system-ui, sans-serif;
   --shadow-soft: var(--shadow-soft);
   --shadow-float: var(--shadow-float);
