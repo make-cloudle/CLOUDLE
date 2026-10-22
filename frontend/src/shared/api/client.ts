@@ -246,12 +246,3 @@ export const getSos = () => request<SosData>("/api/sos");
 export type Series = Stat & { indicator?: string; points?: { year: number; value: number }[] };
 export const getSeries = (iso3: string, indicator: "pm25" | "population" | "forest") =>
   request<Series>(`/api/country/${iso3}/series?indicator=${indicator}`);
-
-export type Verdict = "supported" | "refuted" | "mixed" | "insufficient";
-export type FactResult = { verdict: Verdict; engine: string; answer: Answer & { points?: string[] } };
-export const factcheck = (claim: string, lang: Lang) =>
-  request<FactResult>("/api/factcheck", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ claim, lang }),
-  });
