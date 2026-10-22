@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, ParseBoolPipe, Post, Query, UseGuards } f
 import { SkipThrottle } from "@nestjs/throttler";
 import { IsIn, IsOptional, Matches } from "class-validator";
 import { SessionGuard, SessionId } from "../../core/session";
-import { EarthService, type Indicator, type Topic } from "./earth.service";
+import { EarthService, type Topic } from "./earth.service";
 
 const LANGS = ["ko", "en", "ja", "zh"];
 
@@ -29,12 +29,6 @@ export class EarthController {
   @Get("country/:iso3")
   briefing(@Param() p: Iso3Param, @Query("lang") lang = "ko", @Query("detail", new ParseBoolPipe({ optional: true })) detail = false) {
     return this.earth.briefing(p.iso3, LANGS.includes(lang) ? lang : "ko", detail);
-  }
-
-  @SkipThrottle()
-  @Get("country/:iso3/series")
-  series(@Param() p: Iso3Param, @Query("indicator") indicator: Indicator = "pm25") {
-    return this.earth.timeline(p.iso3, (["pm25", "population", "forest"] as const).includes(indicator) ? indicator : "pm25");
   }
 
   @UseGuards(SessionGuard)

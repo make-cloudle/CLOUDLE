@@ -3,15 +3,13 @@ import { TtlCache } from "../../shared/cache/ttl-cache";
 import { RagEnginePort } from "../../shared/ports/rag-engine.port";
 
 export type Topic = "air" | "waste" | "help";
-export type Indicator = "pm25" | "population" | "forest";
 
-/** Earth SOS · 국가 브리핑 · 타임머신 · 국가 질문 유스케이스 */
+/** Earth SOS · 국가 브리핑 · 국가 질문 유스케이스 */
 @Injectable()
 export class EarthService {
   // 핵심 지표만 짧게 캐시: 같은 나라를 다시 눌러도 엔진·외부 API를 다시 부르지 않는다
   private readonly briefings = new TtlCache<unknown>(10 * 60_000);
   private readonly sosCache = new TtlCache<unknown>(30 * 60_000, 4);
-  private readonly series = new TtlCache<unknown>(24 * 60 * 60_000);
   private readonly answers = new TtlCache<unknown>(60 * 60_000);
 
   constructor(private readonly engine: RagEnginePort) {}
@@ -23,11 +21,6 @@ export class EarthService {
   briefing(iso3: string, lang: string, detail: boolean) {
     return this.briefings.getOrLoad(`${iso3}:${lang}:${detail}`, () =>
       this.engine.call("GET", `/api/country/${iso3}?lang=${lang}&detail=${detail}`));
-  }
-
-  timeline(iso3: string, indicator: Indicator) {
-    return this.series.getOrLoad(`${iso3}:${indicator}`, () =>
-      this.engine.call("GET", `/api/country/${iso3}/series?indicator=${indicator}`));
   }
 
   /** 같은 나라·주제 질문은 1시간 동안 재사용 (LLM 토큰 절약) */
