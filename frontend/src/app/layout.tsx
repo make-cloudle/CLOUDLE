@@ -24,9 +24,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script dangerouslySetInnerHTML={{ __html: PREFS_BOOT_SCRIPT }} />
       </head>
-      <body className="min-h-dvh">
+      <body className="flex min-h-dvh flex-col">
         <Header />
-        <main className="mx-auto max-w-[1320px] px-4 pb-24 sm:px-8">{children}</main>
+        <main className="mx-auto w-full max-w-[1320px] flex-1 px-4 pb-16 sm:px-8">{children}</main>
         <Footer />
       </body>
     </html>
