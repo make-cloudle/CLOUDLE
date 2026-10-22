@@ -33,7 +33,7 @@ cross-cut     core/ SessionGuard · SessionThrottlerGuard · AppExceptionFilter 
 ## 3. frontend — Feature-Sliced Design
 ```
 app → widgets → features → entities → shared   (아래로만 import)
-features: globe · cloud-lab · ask-cloud · compare · discovery · talk
+features: globe · cloud-lab · ask-cloud · trash-match · discovery · talk
 entities: mascot · country · evidence · talk
 shared:   ui(디자인 시스템) · lib(i18n·prefs·idle) · api
 ```
