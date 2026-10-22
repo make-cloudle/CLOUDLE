@@ -13,7 +13,7 @@ import { buttonClass, cx } from "@/shared/ui/primitives";
 const NAV = [
   { href: "/", key: "nav_earth" },
   { href: "/bin", key: "nav_loop" },
-  { href: "/vs", key: "nav_vs" },
+  { href: "/game", key: "nav_game" },
   { href: "/talk", key: "nav_talk" },
   { href: "/book", key: "nav_book" },
 ] as const;
