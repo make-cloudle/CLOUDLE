@@ -242,7 +242,3 @@ export type SosData = {
   events: { status: string; items: EnvEvent[]; days: number; source: string };
 };
 export const getSos = () => request<SosData>("/api/sos");
-
-export type Series = Stat & { indicator?: string; points?: { year: number; value: number }[] };
-export const getSeries = (iso3: string, indicator: "pm25" | "population" | "forest") =>
-  request<Series>(`/api/country/${iso3}/series?indicator=${indicator}`);
