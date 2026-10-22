@@ -4,7 +4,8 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 /** 발견 노트: RAG로 알아낸 사실과 출처를 자동 저장한다 (이 브라우저에만, 로그인 없음). */
-export type DiscoveryKind = "analysis" | "country" | "fact" | "compare";
+/** fact: 예전 Eco Detective 기록(읽기 전용 호환) · talk: 구름 광장 메모 (대화 요약, 검증 전) */
+export type DiscoveryKind = "analysis" | "country" | "fact" | "compare" | "talk";
 
 export type Discovery = {
   id: string;

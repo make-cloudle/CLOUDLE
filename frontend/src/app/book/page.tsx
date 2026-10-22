@@ -4,13 +4,14 @@ import Link from "next/link";
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { EarthBuddy } from "@/entities/mascot/characters";
 import { type DiscoveryKind, useDiscoveries } from "@/features/discovery/model";
+import { useEcoBucket } from "@/features/eco-bucket/model";
 import { type DictKey, useT } from "@/shared/lib/i18n";
 import { usePrefs } from "@/shared/lib/prefs";
-import { IconExternal, IconX } from "@/shared/ui/icons";
+import { IconExternal, IconLeaf, IconX } from "@/shared/ui/icons";
 import { buttonClass, Button, Chip, Overline, Tag } from "@/shared/ui/primitives";
 
-const KINDS: DiscoveryKind[] = ["country", "analysis", "fact", "compare"];
-const TONE = { country: "sky", analysis: "mint", fact: "yellow", compare: "lavender" } as const;
+const KINDS: DiscoveryKind[] = ["country", "analysis", "compare", "talk"];
+const TONE = { country: "sky", analysis: "mint", fact: "yellow", compare: "lavender", talk: "yellow" } as const;
 const noop = () => () => {};
 
 /** Discovery Book: RAG로 알아낸 사실 · 출처 · 탐험한 나라가 자동으로 쌓인다. */
@@ -18,6 +19,7 @@ export default function BookPage() {
   const t = useT();
   const lang = usePrefs((s) => s.lang);
   const { items, remove, clear } = useDiscoveries();
+  const bucket = useEcoBucket();
   const [kind, setKind] = useState<DiscoveryKind | "all">("all");
   const hydrated = useSyncExternalStore(noop, () => true, () => false); // 저장소는 브라우저에만 있다
   const list = useMemo(() => items.filter((d) => kind === "all" || d.kind === kind), [items, kind]);
@@ -46,6 +48,22 @@ export default function BookPage() {
               {t("explored")}: {countries.map((c) => <Tag key={c} tone="sky">{c}</Tag>)}
             </p>
           )}
+
+          {/* 에코 버킷: Cloud Lab에서 담은 좋은 결과·방법 (구름 광장에서 공유 가능) */}
+          <section aria-labelledby="eco-bucket" className="rounded-[24px] bg-surface p-5 shadow-soft">
+            <h2 id="eco-bucket" className="flex items-center gap-2 text-[15px] font-extrabold"><IconLeaf size={16} /> {t("bucket_title")} · {bucket.items.length}</h2>
+            <p className="mt-1 text-[13px] text-ink-2">{t("bucket_desc")}</p>
+            {bucket.items.length === 0 ? <p className="mt-3 text-[13px] text-ink-3">{t("bucket_empty")}</p> : (
+              <ul className="mt-3 flex flex-wrap gap-2">
+                {bucket.items.map((b) => (
+                  <li key={b.id} className="inline-flex h-8 items-center gap-1.5 rounded-full bg-mint/60 pr-1.5 pl-3 text-[13px] font-semibold text-mint-deep">
+                    {b.title}
+                    <button onClick={() => bucket.remove(b.id)} aria-label={t("remove")} className="flex h-5 w-5 items-center justify-center rounded-full hover:bg-surface/60"><IconX size={11} /></button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
 
           {list.length === 0 ? (
             <div className="flex flex-col items-start gap-3 rounded-[24px] bg-surface p-6 shadow-soft">
