@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Cited } from "@/entities/evidence/Evidence";
 import { CloudMascot } from "@/entities/mascot/characters";
 import { TrendChart } from "@/features/compare/TrendChart";
+import { TrashMatch } from "@/features/trash-match/TrashMatch";
 import { useDiscoveries } from "@/features/discovery/model";
 import type { CountryFeature } from "@/features/globe/GlobeView";
 import { type Answer, askCountry, type CountryBriefing, getCountry, getSeries, type Series } from "@/shared/api/client";
@@ -16,7 +17,7 @@ const EMPTY: Side = { feature: null, series: {} };
 const COLORS = ["var(--series-a)", "var(--series-b)"];
 
 /** Planet VS: 두 나라의 지표 · 연도별 변화(타임머신) · 차이의 배경(RAG) */
-export default function VsPage() {
+function CompareView() {
   const t = useT();
   const lang = usePrefs((s) => s.lang);
   const save = useDiscoveries((s) => s.add);
@@ -81,7 +82,7 @@ export default function VsPage() {
 
   const ready = sides[0].feature && sides[1].feature;
   return (
-    <div className="flex flex-col gap-6 pt-8 lg:pt-12">
+    <div className="flex flex-col gap-6">
       <header className="flex items-end justify-between gap-4">
         <div>
           <Overline>Planet VS · Earth Time Machine</Overline>
@@ -178,6 +179,19 @@ export default function VsPage() {
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+/** 국가 비교 | 분리배출 퍼즐 */
+export default function VsPage() {
+  const t = useT();
+  const [mode, setMode] = useState<"compare" | "play">("compare");
+  return (
+    <div className="flex flex-col gap-6 pt-8 lg:pt-12">
+      <Segmented label="mode" value={mode} onChange={setMode} options={[{ value: "compare", label: t("vs_tab_compare") }, { value: "play", label: t("vs_tab_play") }]} />
+      <div hidden={mode !== "compare"}><CompareView /></div>
+      {mode === "play" && <TrashMatch />}
     </div>
   );
 }
