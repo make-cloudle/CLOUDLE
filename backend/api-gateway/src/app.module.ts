@@ -5,7 +5,6 @@ import { ThrottlerModule } from "@nestjs/throttler";
 import { appConfig } from "./config/app.config";
 import { AppExceptionFilter } from "./core/http-exception.filter";
 import { SessionThrottlerGuard } from "./core/rate-limit.guard";
-import { DetectiveController, DetectiveService } from "./modules/detective/detective.controller";
 import { EarthController } from "./modules/earth/earth.controller";
 import { EarthService } from "./modules/earth/earth.service";
 import { HealthController } from "./modules/health/health.controller";
@@ -22,11 +21,10 @@ import { SharedModule } from "./shared/shared.module";
     }),
     SharedModule,
   ],
-  controllers: [HealthController, EarthController, LabController, DetectiveController],
+  controllers: [HealthController, EarthController, LabController],
   providers: [
     EarthService,
     LabService,
-    DetectiveService,
     { provide: APP_GUARD, useClass: SessionThrottlerGuard },
     { provide: APP_FILTER, useClass: AppExceptionFilter },
   ],
