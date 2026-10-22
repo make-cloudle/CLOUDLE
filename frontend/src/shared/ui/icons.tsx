@@ -81,3 +81,65 @@ export const IconAlert = (p: P) => (
     <path d="M12 10v4M12 17.2v.1" />
   </Svg>
 );
+
+/* ── Community ─────────────────────────────────────────────────── */
+export const IconSend = (p: P) => (
+  <Svg {...p}>
+    <path d="M4 12 20 4l-6 16-3-7z" />
+    <path d="m11 13 9-9" />
+  </Svg>
+);
+export const IconBack = (p: P) => (
+  <Svg {...p}>
+    <path d="M15 5 8 12l7 7" />
+  </Svg>
+);
+export const IconUsers = (p: P) => (
+  <Svg {...p}>
+    <circle cx="9" cy="8" r="3.2" />
+    <path d="M3.5 19a5.5 5.5 0 0 1 11 0M15.5 5.2a3 3 0 0 1 0 5.6M17 14a5 5 0 0 1 3.5 5" />
+  </Svg>
+);
+export const IconNote = (p: P) => (
+  <Svg {...p}>
+    <path d="M6 3h9l4 4v14H6z" />
+    <path d="M14 3v5h5M9 12h7M9 16h5" />
+  </Svg>
+);
+export const IconSparkle = (p: P) => (
+  <Svg {...p}>
+    <path d="M12 3v4M12 17v4M3 12h4M17 12h4M6.5 6.5l2 2M15.5 15.5l2 2M6.5 17.5l2-2M15.5 8.5l2-2" />
+  </Svg>
+);
+export const IconRecycle = (p: P) => (
+  <Svg {...p}>
+    <path d="m7 19-3-5 2.5-4.3M17 19h-6M9.5 5.5 12 3l3 5M19.5 13.5 17 19M4 14h5M12 3l1 5h-5M17 19l-2.5-4" />
+  </Svg>
+);
+export const IconTool = (p: P) => (
+  <Svg {...p}>
+    <path d="M14.5 6.5a4 4 0 0 0 5 5L12 19a2.1 2.1 0 0 1-3-3l7.5-7.5a4 4 0 0 1-2-2z" />
+  </Svg>
+);
+export const IconWind = (p: P) => (
+  <Svg {...p}>
+    <path d="M3 9h11a3 3 0 1 0-3-3M3 13h15a3 3 0 1 1-3 3M3 17h7" />
+  </Svg>
+);
+export const IconLeaf = (p: P) => (
+  <Svg {...p}>
+    <path d="M5 19c0-9 6-14 15-14 0 9-5 15-14 15" />
+    <path d="M5 19 13 11" />
+  </Svg>
+);
+export const IconFile = (p: P) => (
+  <Svg {...p}>
+    <path d="M7 3h7l5 5v13H7z" />
+    <path d="M14 3v5h5" />
+  </Svg>
+);
+export const IconPin = (p: P) => (
+  <Svg {...p}>
+    <path d="M9 4h6l-1 6 3 3H7l3-3zM12 13v7" />
+  </Svg>
+);
