@@ -184,7 +184,7 @@ export function TrashMatch() {
       <header className="flex items-end justify-between gap-4">
         <div>
           <Overline>Sorting Puzzle · Match 3</Overline>
-          <h2 className="mt-1 text-[32px] leading-tight font-extrabold tracking-[-0.03em] sm:text-[44px]">{t("pz_title")}</h2>
+          <h1 className="mt-1 text-[32px] leading-tight font-extrabold tracking-[-0.03em] sm:text-[44px]">{t("pz_title")}</h1>
           <p className="mt-2 max-w-xl text-[15px] text-ink-2">{t("pz_desc")}</p>
         </div>
         <CloudMascot mood={phase === "over" ? "sleepy" : combo ? "happy" : "curious"} className="hidden h-20 w-24 shrink-0 sm:block" />

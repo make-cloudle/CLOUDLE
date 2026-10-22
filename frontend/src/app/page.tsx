@@ -218,7 +218,7 @@ export default function EarthPage() {
 
           <div className="flex flex-wrap gap-2">
             <Link href="/bin" className={buttonClass(selected ? "secondary" : "sky", "md")}>{t("nav_loop")} <IconArrow size={16} /></Link>
-            <Link href="/vs" className={buttonClass("secondary", "md")}>{t("nav_vs")}</Link>
+            <Link href="/game" className={buttonClass("secondary", "md")}>{t("nav_game")}</Link>
           </div>
         </aside>
       </div>
