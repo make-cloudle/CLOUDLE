@@ -259,6 +259,11 @@ export const DICT = {
   pz_shuffle: { ko: "움직일 곳이 없어 섞었어요", en: "No moves left — shuffled", ja: "動かせる所がないのでシャッフルしました", zh: "没有可移动的格子，已重新洗牌" },
   pz_note: { ko: "재미로 즐기는 퍼즐이에요. 실제 분리배출 기준은 지역마다 달라서, 헷갈리는 물건은 클라우드 랩에서 확인해 주세요.", en: "Just for fun. Real sorting rules differ by region — check unsure items in Cloud Lab.", ja: "遊びのパズルです。実際の分別基準は地域ごとに違うので、迷うものはクラウドラボで確認してください。", zh: "仅供娱乐。实际分类标准因地区而异，拿不准的物品请到云朵实验室确认。" },
   pz_go_lab: { ko: "클라우드 랩에서 확인", en: "Check in Cloud Lab", ja: "クラウドラボで確認", zh: "在云朵实验室核实" },
+  pz_pause: { ko: "일시정지", en: "Pause", ja: "一時停止", zh: "暂停" },
+  pz_resume: { ko: "계속하기", en: "Resume", ja: "再開", zh: "继续" },
+  pz_paused: { ko: "일시정지 중", en: "Paused", ja: "一時停止中", zh: "已暂停" },
+  pz_paused_hint: { ko: "시간이 멈췄어요. P 또는 Esc 키로도 계속할 수 있어요.", en: "The timer is stopped. Press P or Esc to resume.", ja: "タイマーが止まっています。PまたはEscキーでも再開できます。", zh: "计时已停止。也可以按 P 或 Esc 键继续。" },
+  pz_restart: { ko: "처음부터 다시", en: "Restart", ja: "最初から", zh: "重新开始" },
 } satisfies Dict;
 
 export type DictKey = keyof typeof DICT;
