@@ -47,7 +47,7 @@ modules/community/
 - 리액션은 일반 대화용 6가지: `like 👍 · love ❤️ · laugh 😂 · wow 😮 · sad 😢 · eco 🌱` (`REACTIONS`, 프론트 `entities/talk/types.ts`와 같은 순서).
   서버 → 클라: `me` · `message` · `reaction` · `presence`(members + online) · `typing` · `failure`. `GET /api/community/rooms`는 방마다 `members · online · joined`를 준다. 페이로드는 class-validator DTO(`inbound/community.dto.ts`)로 검증한다.
 - 바이너리(사진·파일 ≤5MB, png·jpg·webp·gif·pdf·txt·md)는 소켓이 아니라 HTTP multipart로 올린다 (`maxHttpBufferSize` 64KB).
-- **신원(개발용):** `IdentityPort` = `OriginPortIdentity`. 브라우저가 붙이는 `Origin`의 포트로 닉네임을 정한다 — `COMMUNITY_IDENTITIES=3000:지구미,3001:예나`. 로그인 도입 시 이 어댑터만 교체한다.
+- **신원(개발용):** `IdentityPort` = `OriginPortIdentity`. 브라우저가 붙이는 `Origin`의 포트로 닉네임을 정한다 — `COMMUNITY_IDENTITIES=3000:지구미,3001:예나`. **닉네임:** 로그인이 없으므로 방에 처음 참여할 때(`room:join`의 `nickname`) 직접 정한다. 서버는 세션 ID별로 기억(`IdentityPort.rename`, 메모리 5,000건)하고, 브라우저는 `localStorage`에 저장해 접속·새로고침 때 `auth.nickname`으로 다시 알린다. 규칙은 `cleanNickname`(1~12자, 제어문자·`<`·`>` 금지, 공백 정리), 같은 방에서 다른 사람이 쓰는 이름(대소문자·공백 무시)은 `nickname_taken`으로 거절한다. 식별자(`id`)는 닉네임과 무관하게 그대로다. 로그인 도입 시 이 어댑터만 교체한다.
 - **참여 모델 (카카오톡 방식, `Roster`)** — 참여(멤버십)와 접속(소켓)을 분리한다.
   - `room:join` = "참여하시겠습니까?" 확인 → 명단 추가, **처음일 때만** "OO님이 들어왔습니다."
   - `room:open` = 참여한 방 다시 열기(알림 없음). 미참여면 `not_member`.
