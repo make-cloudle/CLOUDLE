@@ -29,7 +29,7 @@ type State = {
   online: string[];
   messages: ChatMessage[];
   typing: Record<string, { member: Member; until: number }>;
-  join: (roomId: string) => Promise<void>;
+  join: (roomId: string, nickname?: string) => Promise<void>;
   open: (roomId: string) => Promise<void>;
   close: () => void;
   exit: () => Promise<void>;
@@ -43,6 +43,15 @@ type State = {
 };
 
 let socket: Socket | null = null;
+
+/** 닉네임은 이 브라우저에만 기억한다 (로그인이 없으므로). 서버에는 접속·참여할 때 알려 준다. */
+const NICK_KEY = "cloudle.nickname";
+export function savedNickname(): string {
+  try { return localStorage.getItem(NICK_KEY) ?? ""; } catch { return ""; }
+}
+function rememberNickname(name: string) {
+  try { localStorage.setItem(NICK_KEY, name); } catch { /* 저장소를 못 쓰는 환경 — 이번 방문에만 적용 */ }
+}
 
 async function call<T>(event: string, body: unknown): Promise<T> {
   const s = connect();
@@ -60,7 +69,7 @@ function connect(): Socket {
   if (socket) return socket;
   const set = useTalk.setState;
   const get = useTalk.getState;
-  socket = io(`${apiBase()}/community`, { auth: { sessionId: sessionId() }, transports: ["websocket", "polling"] });
+  socket = io(`${apiBase()}/community`, { auth: { sessionId: sessionId(), nickname: savedNickname() || undefined }, transports: ["websocket", "polling"] });
   set({ status: "connecting" });
   socket.on("connect", () => {
     set({ status: "online" });
@@ -103,10 +112,11 @@ function clearTyping(id: string) {
 let typingSent = 0;
 
 type Snapshot = { room: Room; me: Member; members: Member[]; online: string[]; history: ChatMessage[] };
-async function enter(event: "room:join" | "room:open", roomId: string) {
+async function enter(event: "room:join" | "room:open", roomId: string, nickname?: string) {
   const { room: prev } = useTalk.getState();
   if (prev && prev.id !== roomId) useTalk.getState().close();
-  const snap = await call<Snapshot>(event, { roomId });
+  const snap = await call<Snapshot>(event, nickname ? { roomId, nickname } : { roomId });
+  if (nickname) rememberNickname(snap.me.nickname);
   useTalk.setState((s) => ({
     room: snap.room, me: snap.me, members: snap.members, online: snap.online,
     messages: mergeMessages(prev?.id === roomId ? s.messages : [], snap.history),
@@ -122,7 +132,7 @@ export const useTalk = create<State>((set, get) => ({
   messages: [],
   typing: {},
 
-  join: (roomId) => enter("room:join", roomId),
+  join: (roomId, nickname) => enter("room:join", roomId, nickname),
   open: (roomId) => enter("room:open", roomId),
 
   close: () => {
