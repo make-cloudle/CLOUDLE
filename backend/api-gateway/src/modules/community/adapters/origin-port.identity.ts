@@ -1,9 +1,10 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import type { Member } from "../domain/community.types";
+import { CommunityError, cleanNickname, NICKNAME_MAX, type Member } from "../domain/community.types";
 import { type ConnectionInfo, IdentityPort } from "../ports/identity.port";
 
 const TONES: Member["tone"][] = ["sky", "mint", "yellow", "lavender", "warn"];
+const MAX_REMEMBERED = 5000;
 
 /**
  * 개발용 신원 어댑터: 프론트가 뜬 포트(Origin)로 사람을 정한다.
@@ -15,6 +16,8 @@ const TONES: Member["tone"][] = ["sky", "mint", "yellow", "lavender", "warn"];
 @Injectable()
 export class OriginPortIdentity extends IdentityPort {
   private readonly byPort: Map<string, string>;
+  /** 세션 ID → 사용자가 고른 닉네임 (메모리, 오래된 것부터 버림) */
+  private readonly chosen = new Map<string, string>();
 
   constructor(@Inject(ConfigService) config: ConfigService) {
     super();
@@ -24,10 +27,21 @@ export class OriginPortIdentity extends IdentityPort {
   resolve({ origin, sessionId }: ConnectionInfo): Member {
     const port = portOf(origin);
     const mapped = port && this.byPort.get(port);
-    if (mapped) return { id: `u:${mapped}`, nickname: mapped, tone: toneFor(mapped) };
-    // 게스트: 식별자는 세션 ID 전체(충돌 방지), 앞 4글자는 화면에 보이는 이름에만 쓴다
     const sid = sessionId || "anonymous";
-    return { id: `g:${sid}`, nickname: `구름손님${sid.slice(0, 4).toUpperCase()}`, tone: toneFor(sid) };
+    const picked = this.chosen.get(sid);
+    // 식별자(id)는 바뀌지 않는다: 개발 매핑은 이름, 게스트는 세션 ID 전체(충돌 방지). 닉네임은 보이는 이름만 바꾼다.
+    if (mapped) return { id: `u:${mapped}`, nickname: picked ?? mapped, tone: toneFor(mapped) };
+    return { id: `g:${sid}`, nickname: picked ?? `구름손님${sid.slice(0, 4).toUpperCase()}`, tone: toneFor(sid) };
+  }
+
+  rename(info: ConnectionInfo, nickname: string): Member {
+    const name = cleanNickname(nickname);
+    if (!name) throw new CommunityError("bad_nickname", `닉네임은 1~${NICKNAME_MAX}자로 적어 주세요. (< > 와 줄바꿈은 쓸 수 없어요)`);
+    const sid = info.sessionId || "anonymous";
+    this.chosen.delete(sid); // 가장 최근 것이 맨 뒤로 가게
+    this.chosen.set(sid, name);
+    if (this.chosen.size > MAX_REMEMBERED) this.chosen.delete(this.chosen.keys().next().value as string);
+    return this.resolve(info);
   }
 }
 

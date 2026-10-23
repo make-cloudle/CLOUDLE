@@ -58,6 +58,15 @@ export class CommunityService {
   }
 
   /* ── 참여 · 열기 · 닫기 · 나가기 ─────────────────────────────── */
+  /** 같은 방에서 다른 사람이 이미 쓰는 닉네임이면 거절 (대소문자·공백 차이는 같은 이름으로 본다) */
+  assertNicknameFree(roomId: string, member: Member) {
+    this.room(roomId);
+    const key = (n: string) => n.replace(/\s/g, "").toLowerCase();
+    if (this.roster.list(roomId).some((m) => m.id !== member.id && key(m.nickname) === key(member.nickname))) {
+      throw new CommunityError("nickname_taken", "이 방에서 이미 쓰고 있는 닉네임이에요. 다른 이름을 골라 주세요.");
+    }
+  }
+
   async join(roomId: string, member: Member): Promise<RoomSnapshot> {
     this.room(roomId);
     if (this.roster.join(roomId, member)) await this.announce(roomId, "join", member.nickname);
@@ -67,6 +76,7 @@ export class CommunityService {
   async open(roomId: string, member: Member): Promise<RoomSnapshot> {
     const room = this.room(roomId);
     if (!this.roster.isMember(roomId, member.id)) throw new CommunityError("not_member", "먼저 채팅방에 참여해 주세요.");
+    this.roster.join(roomId, member); // 닉네임을 바꿨다면 명단 이름도 갱신 (이미 참여 중이라 알림 없음)
     this.roster.connect(roomId, member.id);
     this.publishPresence(roomId);
     return {
