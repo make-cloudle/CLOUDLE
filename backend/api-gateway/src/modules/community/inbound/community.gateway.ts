@@ -7,9 +7,9 @@ import {
 import type { Namespace, Socket } from "socket.io";
 import { roomChannel, SocketIoRoomEvents } from "../adapters/socket-io.room-events";
 import { CommunityService } from "../community.service";
-import type { Member } from "../domain/community.types";
+import { cleanNickname, CommunityError, NICKNAME_MAX, type Member } from "../domain/community.types";
 import { IdentityPort } from "../ports/identity.port";
-import { ReactDto, RoomRefDto, SendTextDto, ShareBucketDto, ShareMemoDto, SummarizeDto, TypingDto } from "./community.dto";
+import { JoinDto, ReactDto, RoomRefDto, SendTextDto, ShareBucketDto, ShareMemoDto, SummarizeDto, TypingDto } from "./community.dto";
 import { WsErrorFilter } from "./ws-error.filter";
 
 type Data = { member: Member; sessionId: string; rooms: Set<string> };
@@ -40,7 +40,11 @@ export class CommunityGateway implements OnGatewayInit, OnGatewayConnection, OnG
   handleConnection(client: Client) {
     const auth = (client.handshake.auth ?? {}) as { sessionId?: unknown };
     const sessionId = typeof auth.sessionId === "string" && /^[A-Za-z0-9]{8,64}$/.test(auth.sessionId) ? auth.sessionId : client.id.replace(/[^A-Za-z0-9]/g, "");
-    const member = this.identity.resolve({ origin: client.handshake.headers.origin, sessionId });
+    const info = { origin: client.handshake.headers.origin, sessionId };
+    // 새로고침·재연결 때 브라우저가 기억한 닉네임을 다시 알려 준다. 규칙에 안 맞으면 조용히 무시한다.
+    const saved = (client.handshake.auth as { nickname?: unknown } | undefined)?.nickname;
+    let member = this.identity.resolve(info);
+    if (typeof saved === "string" && cleanNickname(saved)) member = this.identity.rename(info, saved);
     client.data = { member, sessionId, rooms: new Set() };
     client.emit("me", member);
   }
@@ -52,7 +56,18 @@ export class CommunityGateway implements OnGatewayInit, OnGatewayConnection, OnG
 
   /** "참여하시겠습니까?" 확인 후: 명단에 추가(처음이면 입장 알림) + 화면 열기 */
   @SubscribeMessage("room:join")
-  async join(@ConnectedSocket() client: Client, @MessageBody() { roomId }: RoomRefDto) {
+  async join(@ConnectedSocket() client: Client, @MessageBody() { roomId, nickname }: JoinDto) {
+    if (nickname !== undefined) {
+      const name = cleanNickname(nickname);
+      if (!name) throw new CommunityError("bad_nickname", `닉네임은 1~${NICKNAME_MAX}자로 적어 주세요. (< > 와 줄바꿈은 쓸 수 없어요)`);
+      // 기억시키기 전에 같은 방의 다른 사람과 겹치는지 먼저 확인한다
+      this.community.assertNicknameFree(roomId, { ...client.data.member, nickname: name });
+      const next = this.identity.rename({ origin: client.handshake.headers.origin, sessionId: client.data.sessionId }, name);
+      if (next.nickname !== client.data.member.nickname) {
+        client.data.member = next;
+        client.emit("me", next);
+      }
+    }
     return this.view(client, roomId, () => this.community.join(roomId, client.data.member));
   }
 

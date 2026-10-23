@@ -9,6 +9,11 @@ export class RoomRefDto {
   @Matches(ROOM_ID) roomId!: string;
 }
 
+export class JoinDto extends RoomRefDto {
+  /** 비우면 지금 이름 그대로 참여 */
+  @IsOptional() @IsString() @Length(1, 40) nickname?: string;
+}
+
 export class SendTextDto extends RoomRefDto {
   @IsString() @Length(1, 1000) text!: string;
 }

@@ -179,3 +179,56 @@ test("첨부 업로드는 방에 들어간 사람만, 허용 형식만", async (
   expect(file.headers["content-disposition"]).toContain("attachment");
 });
 
+
+/* ── 닉네임: 로그인 없이 참여할 때 이름을 직접 정한다 ───────────────────────── */
+const guest = (sid: string, nickname?: string) =>
+  new Promise<{ s: Socket; me: { id: string; nickname: string } }>((resolve) => {
+    const s = io(url, { transports: ["websocket"], extraHeaders: { origin: "https://cloudle.vercel.app" }, auth: { sessionId: sid, nickname }, forceNew: true });
+    sockets.push(s);
+    s.once("me", (me) => resolve({ s, me }));
+  });
+
+test("닉네임을 정해 참여하면 입장 알림·메시지·명단에 그 이름이 쓰인다 (식별자는 그대로)", async () => {
+  const { s, me } = await guest("nick0001aaaa");
+  const joined = await emit(s, "room:join", { roomId: "repair", nickname: "  바다  거북 " });
+  expect(joined.ok).toBe(true);
+  expect(joined.me.nickname).toBe("바다 거북");           // 공백 정리
+  expect(joined.me.id).toBe(me.id);
+  expect(joined.history.some((m: any) => m.type === "system" && m.nickname === "바다 거북")).toBe(true);
+  const sent = await emit(s, "message:send", { roomId: "repair", text: "안녕" });
+  expect(sent.message.author.nickname).toBe("바다 거북");
+  expect(joined.members.map((m: any) => m.nickname)).toContain("바다 거북");
+});
+
+test("규칙에 맞지 않는 닉네임은 거절된다 (빈 값 · 13자 · < >)", async () => {
+  const { s } = await guest("nick0002aaaa");
+  for (const bad of ["   ", "가".repeat(13), "<b>굵게</b>"]) {
+    const r = await emit(s, "room:join", { roomId: "sorting", nickname: bad });
+    expect(r.ok).toBe(false);
+    expect(r.code).toBe("bad_nickname");
+  }
+  const ok = await emit(s, "room:join", { roomId: "sorting", nickname: "가".repeat(12) });
+  expect(ok.ok).toBe(true);
+});
+
+test("같은 방에서 다른 사람이 쓰는 닉네임은 거절되고, 내 이름은 바뀌지 않는다", async () => {
+  const a = await guest("nick0003aaaa");
+  const b = await guest("nick0004bbbb");
+  expect((await emit(a.s, "room:join", { roomId: "zerowaste", nickname: "Moss" })).ok).toBe(true);
+  const dup = await emit(b.s, "room:join", { roomId: "zerowaste", nickname: "moss " }); // 대소문자·공백 무시
+  expect(dup.ok).toBe(false);
+  expect(dup.code).toBe("nickname_taken");
+  const other = await emit(b.s, "room:join", { roomId: "zerowaste" });                   // 닉네임 없이 → 기본 이름
+  expect(other.ok).toBe(true);
+  expect(other.me.nickname).toBe(b.me.nickname);
+});
+
+test("닉네임은 새로고침(재연결) 때 auth로 다시 전달되고, 다른 방에서도 같은 이름이다", async () => {
+  const first = await guest("nick0005aaaa", "구름이");
+  expect(first.me.nickname).toBe("구름이");
+  first.s.disconnect();
+  const again = await guest("nick0005aaaa", "구름이");
+  expect(again.me.nickname).toBe("구름이");
+  const bad = await guest("nick0006aaaa", "<script>");                                // 잘못된 값은 조용히 무시
+  expect(bad.me.nickname.startsWith("구름손님")).toBe(true);
+});
