@@ -112,6 +112,7 @@ export const DICT = {
     zh: "离线模式 — 未使用 LLM，摘录依据原文作答。",
   },
   chat_title: { ko: "구름에게 더 물어보기", en: "Ask the cloud", ja: "クラウドに質問", zh: "继续提问" },
+  chat_no_cite: { ko: "이 답변에는 인용한 근거가 없어요. 확인된 사실이 아닐 수 있어요.", en: "This answer cites no sources, so it may not be verified.", ja: "この回答には引用した根拠がありません。確認された事実ではない可能性があります。", zh: "此回答没有引用来源，可能未经证实。" },
   chat_ph: { ko: "이 물건에 대해 궁금한 점을 적어주세요", en: "Write your question about this item", ja: "このモノについて質問を書いてください", zh: "请写下关于此物品的问题" },
   send: { ko: "보내기", en: "Send", ja: "送信", zh: "发送" },
   unknown_pick: { ko: "어떤 물건인지 골라 주세요", en: "Which item is it?", ja: "どのモノですか？", zh: "是哪件物品？" },

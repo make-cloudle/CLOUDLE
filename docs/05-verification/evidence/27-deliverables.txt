@@ -1,0 +1,7 @@
+요구사항 정의서               docs/02-requirements/SRS.md  있음
+RAG 파이프라인 설계문서         docs/03-design/RAG_PIPELINE.md  있음
+README                 README.md  있음
+요구사항 대조표               docs/02-requirements/TRACEABILITY.md  있음
+테스트 결과표                docs/05-verification/VERIFICATION.md  있음
+RAG 비교 문서              docs/05-verification/RAG_COMPARISON.md  있음
+데이터 출처                 docs/04-data/DATA_SOURCES.md  있음

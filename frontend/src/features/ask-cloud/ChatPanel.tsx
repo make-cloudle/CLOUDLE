@@ -72,10 +72,13 @@ export function ChatPanel({ itemId, itemName }: { itemId: string; itemName: stri
           {history.map((m, i) => (
             <li key={i} className={cx("flex items-end gap-2", m.role === "user" && "justify-end")}>
               {m.role === "assistant" && <CloudMascot mood="presenting" className="h-10 w-12 shrink-0" />}
-              <p className={cx("max-w-[85%] rounded-[20px] px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap",
+              <div className={cx("max-w-[85%] rounded-[20px] px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap",
                 m.role === "user" ? "rounded-br-md bg-accent text-accent-ink" : "rounded-bl-md bg-surface shadow-soft")}>
                 {m.role === "assistant" ? <Cited text={m.content} onCite={cite} /> : m.content}
-              </p>
+                {m.role === "assistant" && m.citations && m.citations.length === 0 && (
+                  <p className="mt-1.5 text-[12px] text-ink-3">{t("chat_no_cite")}</p>
+                )}
+              </div>
             </li>
           ))}
           {busy && <li className="flex items-end gap-2"><CloudMascot mood="thinking" className="h-10 w-12" /></li>}

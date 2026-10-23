@@ -1,0 +1,112 @@
+{
+  "1": {
+    "result": "pass",
+    "note": "로드 152건 = 색인 152건, 색인 텍스트에 속성 9/9개 포함",
+    "evidence": "01-items-index.txt"
+  },
+  "2": {
+    "result": "pass",
+    "note": "품목 색인 152→152, 안내 문서 청크 72→72 (재실행해도 늘지 않음)",
+    "evidence": "02-idempotent.txt"
+  },
+  "5": {
+    "result": "pass",
+    "note": "CHUNK_SIZE 1000→300: 청크 72→249, 색인 72→249 (되돌리면 72)",
+    "evidence": "05-chunk-size.txt"
+  },
+  "3": {
+    "result": "pass",
+    "note": "검색어 5개, 후보 18건 중 채택 3건·버림 15건",
+    "evidence": "03-collect-p1-p2.txt"
+  },
+  "4": {
+    "result": "pass",
+    "note": "같은 질문 2회차: 외부 호출 0회, 새 색인 0청크, 캐시 적중 5/5, 8.60s→0.01s",
+    "evidence": "04-collect-cache.txt"
+  },
+  "6": {
+    "result": "pass",
+    "note": "TOP_K 2→6: 근거 3건→7건",
+    "evidence": "06-top-k.txt"
+  },
+  "7": {
+    "result": "pass",
+    "note": "LangGraph 노드: ['generate', 'retrieve'] (START→retrieve→generate→END)",
+    "evidence": "07-graph.txt"
+  },
+  "8": {
+    "result": "pass",
+    "note": "본문 인용 [1, 5, 6] = 근거 목록 [1, 5, 6], 구분: ['배출 안내', '위키백과', '품목 메타데이터']",
+    "evidence": "08-citations.txt"
+  },
+  "12": {
+    "result": "pass",
+    "note": "수리·재사용·분리배출·다음 선택 각 항목에 근거 번호 또는 '확인할 수 없음' 표시",
+    "evidence": "12-domain-feature.txt"
+  },
+  "19": {
+    "result": "pass",
+    "note": "출처 종류 구분: ['배출 안내', '업로드 문서', '위키백과', '품목 메타데이터'] (위키백과는 3번 수집 결과에 포함)",
+    "evidence": "19-source-kinds.txt"
+  },
+  "9": {
+    "result": "pass",
+    "note": "색인에 없는 질문 → 답변 '확인할 수 없음', 인용 [] (화면 안내는 UI 점검에서 확인)",
+    "evidence": "09-unanswerable.txt"
+  },
+  "10": {
+    "result": "pass",
+    "note": "E001 기록 2건, G002 기록 2건, 섞인 메시지 0건",
+    "evidence": "10-chat-isolation.txt"
+  },
+  "11": {
+    "result": "pass",
+    "note": "조건 3개 검색, 조건과 맞지 않는 항목 0건",
+    "evidence": "11-condition-search.txt"
+  },
+  "13": {
+    "result": "pass",
+    "note": "진행 이벤트 11단계 순서 일치, 색인 없음 → 'index_missing | 품목 색인이 비어 있어요. 관리자에게 색인 실행을 요청해 주세요.', 키 없음 → offline=True(화면 안내는 UI 점검)",
+    "evidence": "13-progress-errors.txt"
+  },
+  "14": {
+    "result": "na",
+    "note": "환경·분리배출 도메인이라 건강·금융 면책 대상이 아님 (배터리·유해물은 안전 안내 `safety`가 별도로 표시됨 — UI 점검 참고)",
+    "evidence": ""
+  },
+  "16": {
+    "result": "pass",
+    "note": "유사도 5건·MMR 5건 나란히 기록 (이 질문에서는 순서·구성이 다름)",
+    "evidence": "16-similarity-vs-mmr.txt"
+  },
+  "20": {
+    "result": "pass",
+    "note": "첫 분석 투명 페트병 3.39s, 소주병·맥주병 2.71s, 형광등 5.68s / 재분석 0.03s, 0.03s, 0.03s (오프라인·위키백과 수집 포함, LLM 시간은 미포함)",
+    "evidence": "20-timings.txt"
+  },
+  "21": {
+    "result": "pass",
+    "note": "저장소(HEAD 전체)에서 키 패턴 0건, 추적 중인 .env 파일 0개, 오류 응답의 내부 정보 노출 0건",
+    "evidence": "21-secrets-errors.txt"
+  },
+  "22": {
+    "result": "pass",
+    "note": "수집·색인·검색·생성·UI가 파일로 분리됨 (없는 것: 없음)",
+    "evidence": "22-modules.txt"
+  },
+  "23": {
+    "result": "pass",
+    "note": "호출 간격 [0.25, 0.25, 0.25]초(≥0.25), 429·5xx 재시도(지수 백오프·Retry-After), User-Agent='CLOUDLE/0.1 (SSAFY AI core project; https://lab.ssafy.com/s16/a11/ai_day/CLOUDLE)'",
+    "evidence": "23-http-etiquette.txt"
+  },
+  "24": {
+    "result": "pass",
+    "note": "README에 사용 데이터의 출처·이용 조건이 있는지",
+    "evidence": "24-readme-sources.txt"
+  },
+  "27": {
+    "result": "pass",
+    "note": "제출 문서 7/7 존재 (셀프 체크리스트는 CHECKLIST.md로 별도)",
+    "evidence": "27-deliverables.txt"
+  }
+}

@@ -1,0 +1,6 @@
+진행 이벤트(서버가 실제로 보낸 것): ['item', 'extract', 'extract_done', 'collect', 'collect_done', 'select', 'select_done', 'index', 'index_done', 'retrieve', 'generate_done']
+기대 순서: ['item', 'extract', 'extract_done', 'collect', 'collect_done', 'select', 'select_done', 'index', 'index_done', 'retrieve', 'generate_done']
+일치: True
+
+색인이 없는 저장소로 실행 → index_missing | 품목 색인이 비어 있어요. 관리자에게 색인 실행을 요청해 주세요.
+키가 없는 실행 → offline=True, engine=offline
