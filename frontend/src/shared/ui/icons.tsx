@@ -83,6 +83,16 @@ export const IconAlert = (p: P) => (
 );
 
 /* ── Community ─────────────────────────────────────────────────── */
+export const IconPause = (p: P) => (
+  <Svg {...p}>
+    <path d="M9 5v14M15 5v14" />
+  </Svg>
+);
+export const IconPlay = (p: P) => (
+  <Svg {...p}>
+    <path d="M8 5v14l11-7z" />
+  </Svg>
+);
 export const IconSend = (p: P) => (
   <Svg {...p}>
     <path d="M4 12 20 4l-6 16-3-7z" />
