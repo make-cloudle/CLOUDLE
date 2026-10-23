@@ -8,10 +8,10 @@ import { type Paper, useLoop } from "@/features/cloud-lab/model";
 import { useDiscoveries } from "@/features/discovery/model";
 import { useEcoBucket } from "@/features/eco-bucket/model";
 import { Avatar, ChatRoom, RoomIcon } from "@/features/talk/ChatRoom";
-import { ensureConnected, getRooms, TalkError, useTalk } from "@/features/talk/model";
+import { ensureConnected, getRooms, savedNickname, TalkError, useTalk } from "@/features/talk/model";
 import { fill, useT } from "@/shared/lib/i18n";
 import { IconArrow } from "@/shared/ui/icons";
-import { Alert, Button, Overline, Tag } from "@/shared/ui/primitives";
+import { Alert, Button, Input, Overline, Tag } from "@/shared/ui/primitives";
 
 const noop = () => () => {};
 
@@ -33,6 +33,8 @@ export default function TalkPage() {
   const [error, setError] = useState("");
   const [entering, setEntering] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<Room | null>(null);
+  const [nick, setNick] = useState("");
+  const [nickError, setNickError] = useState("");
 
   useEffect(() => {
     ensureConnected();
@@ -47,12 +49,22 @@ export default function TalkPage() {
   }
 
   /** 참여 중인 방은 바로 열고, 아니면 참여 확인 창을 띄운다 */
-  const pick = (r: Room) => (r.joined ? enter(r.id, false) : setConfirm(r));
+  const pick = (r: Room) => {
+    if (r.joined) return enter(r.id, false);
+    setNick(savedNickname() || me?.nickname || ""); setNickError(""); setConfirm(r);
+  };
   const enter = async (id: string, isJoin: boolean) => {
-    setEntering(id); setError(""); setConfirm(null);
-    try { await (isJoin ? join(id) : open(id)); window.scrollTo({ top: 0 }); }
-    catch (e) { setError(e instanceof TalkError ? e.message : t("error_generic")); loadRooms(); }
-    finally { setEntering(null); }
+    setEntering(id); setError(""); setNickError("");
+    if (!isJoin) setConfirm(null);
+    try {
+      await (isJoin ? join(id, nick.trim()) : open(id));
+      setConfirm(null); window.scrollTo({ top: 0 });
+    } catch (e) {
+      const msg = e instanceof TalkError ? e.message : t("error_generic");
+      // 닉네임 문제는 창을 닫지 않고 그 자리에서 고치게 한다
+      if (e instanceof TalkError && (e.code === "bad_nickname" || e.code === "nickname_taken")) setNickError(msg);
+      else { setConfirm(null); setError(msg); loadRooms(); }
+    } finally { setEntering(null); }
   };
   const back = () => { close(); loadRooms(); };
   const leaveRoom = async () => {
@@ -140,10 +152,19 @@ export default function TalkPage() {
             <span className="flex h-12 w-12 items-center justify-center rounded-full bg-sky-soft text-sky-deep"><RoomIcon icon={confirm.icon} size={22} /></span>
             <h2 id="join-title" className="mt-3 text-[19px] font-extrabold">{fill(t("talk_join_q"), { room: confirm.title })}</h2>
             <p className="mt-1 text-[13px] leading-relaxed text-ink-2">{confirm.topic}</p>
-            <p className="mt-3 rounded-2xl bg-surface-2 px-3 py-2 text-[12px] leading-relaxed text-ink-2">{fill(t("talk_join_note"), { name: me?.nickname ?? "" })}</p>
+            <form id="join-form" className="mt-4" onSubmit={(e) => { e.preventDefault(); void enter(confirm.id, true); }}>
+              <label htmlFor="join-nick" className="text-[13px] font-semibold">{t("talk_nick_label")}</label>
+              <Input id="join-nick" className="mt-1.5" value={nick} maxLength={12} autoComplete="nickname" enterKeyHint="go"
+                placeholder={t("talk_nick_ph")} invalid={!!nickError} aria-describedby="join-nick-hint"
+                onChange={(e) => { setNick(e.target.value); setNickError(""); }} />
+              <p id="join-nick-hint" role={nickError ? "alert" : undefined} className={nickError ? "mt-1.5 text-[12px] text-danger" : "mt-1.5 text-[12px] text-ink-3"}>
+                {nickError || t("talk_nick_hint")}
+              </p>
+            </form>
+            <p className="mt-3 rounded-2xl bg-surface-2 px-3 py-2 text-[12px] leading-relaxed text-ink-2">{fill(t("talk_join_note"), { name: nick.trim() || me?.nickname || "" })}</p>
             <div className="mt-5 flex justify-end gap-2">
               <Button variant="ghost" onClick={() => setConfirm(null)}>{t("talk_cancel")}</Button>
-              <Button variant="primary" autoFocus loading={entering === confirm.id} onClick={() => enter(confirm.id, true)}>{t("talk_join")}</Button>
+              <Button variant="primary" type="submit" form="join-form" loading={entering === confirm.id}>{t("talk_join")}</Button>
             </div>
           </div>
         </div>
