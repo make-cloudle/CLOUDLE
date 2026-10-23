@@ -1,0 +1,43 @@
+품목: 스마트폰
+검색어(P1, rule): ['스마트폰', 'Smartphone', '스마트폰 재활용', '리튬 이온 전지 재활용', '유리 재활용']
+
+후보 18건:
+  - 스마트폰  https://ko.wikipedia.org/wiki/%EC%8A%A4%EB%A7%88%ED%8A%B8%ED%8F%B0
+  - 휴대 전화  https://ko.wikipedia.org/wiki/%ED%9C%B4%EB%8C%80_%EC%A0%84%ED%99%94
+  - 블랙베리 (스마트폰)  https://ko.wikipedia.org/wiki/%EB%B8%94%EB%9E%99%EB%B2%A0%EB%A6%AC_%28%EC%8A%A4%EB%A7%88%ED%8A%B8%ED%8F%B0%29
+  - 애니콜 HSUPA 스마트폰  https://ko.wikipedia.org/wiki/%EC%95%A0%EB%8B%88%EC%BD%9C_HSUPA_%EC%8A%A4%EB%A7%88%ED%8A%B8%ED%8F%B0
+  - Smartphone  https://en.wikipedia.org/wiki/Smartphone
+  - Foldable smartphone  https://en.wikipedia.org/wiki/Foldable_smartphone
+  - Poco (smartphone)  https://en.wikipedia.org/wiki/Poco_%28smartphone%29
+  - History of smartphones  https://en.wikipedia.org/wiki/History_of_smartphones
+  - 폴더블 스마트폰  https://ko.wikipedia.org/wiki/%ED%8F%B4%EB%8D%94%EB%B8%94_%EC%8A%A4%EB%A7%88%ED%8A%B8%ED%8F%B0
+  - 러기드 스마트폰  https://ko.wikipedia.org/wiki/%EB%9F%AC%EA%B8%B0%EB%93%9C_%EC%8A%A4%EB%A7%88%ED%8A%B8%ED%8F%B0
+  - 아연 이온 전지  https://ko.wikipedia.org/wiki/%EC%95%84%EC%97%B0_%EC%9D%B4%EC%98%A8_%EC%A0%84%EC%A7%80
+  - 전고체 전지  https://ko.wikipedia.org/wiki/%EC%A0%84%EA%B3%A0%EC%B2%B4_%EC%A0%84%EC%A7%80
+  - 리튬  https://ko.wikipedia.org/wiki/%EB%A6%AC%ED%8A%AC
+  - 전지  https://ko.wikipedia.org/wiki/%EC%A0%84%EC%A7%80
+  - 재활용  https://ko.wikipedia.org/wiki/%EC%9E%AC%ED%99%9C%EC%9A%A9
+  - 유리  https://ko.wikipedia.org/wiki/%EC%9C%A0%EB%A6%AC
+  - 전자 쓰레기  https://ko.wikipedia.org/wiki/%EC%A0%84%EC%9E%90_%EC%93%B0%EB%A0%88%EA%B8%B0
+  - 폴리카보네이트  https://ko.wikipedia.org/wiki/%ED%8F%B4%EB%A6%AC%EC%B9%B4%EB%B3%B4%EB%84%A4%EC%9D%B4%ED%8A%B8
+
+선별(P2, rule) 채택 3건: ['wiki-ko-9977', 'wiki-ko-10106', 'wiki-en-167079']
+버려진 문서 15건:
+  - wiki-ko-291265: 품목명 불일치(규칙)
+  - wiki-ko-498858: 품목명 불일치(규칙)
+  - wiki-en-60119704: 품목명 불일치(규칙)
+  - wiki-en-67271739: 품목명 불일치(규칙)
+  - wiki-en-81060962: 품목명 불일치(규칙)
+  - wiki-ko-2654227: 품목명 불일치(규칙)
+  - wiki-ko-4139719: 품목명 불일치(규칙)
+  - wiki-ko-4084447: 품목명 불일치(규칙)
+  - wiki-ko-2305722: 품목명 불일치(규칙)
+  - wiki-ko-95500: 품목명 불일치(규칙)
+  - wiki-ko-29337: 품목명 불일치(규칙)
+  - wiki-ko-548568: 품목명 불일치(규칙)
+  - wiki-ko-45138: 품목명 불일치(규칙)
+  - wiki-ko-559063: 품목명 불일치(규칙)
+  - wiki-ko-214716: 품목명 불일치(규칙)
+
+색인된 청크: 39
+오류: 없음

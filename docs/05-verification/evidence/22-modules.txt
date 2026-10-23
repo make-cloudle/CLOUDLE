@@ -1,0 +1,10 @@
+수집               cloudle/rag/collect.py  있음
+색인               cloudle/rag/indexing.py  있음
+검색               cloudle/rag/retrieve.py  있음
+생성(LangGraph)    cloudle/rag/graph.py  있음
+UI(Streamlit)    streamlit_app.py  있음
+UI(Next.js)      ../../frontend/src/app/bin/page.tsx  있음
+API              cloudle/api/main.py  있음
+외부 출처            cloudle/sources/  있음
+프롬프트             cloudle/rag/prompts.py  있음
+LLM·예산           cloudle/rag/llm.py  있음

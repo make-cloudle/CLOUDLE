@@ -1,0 +1,4 @@
+User-Agent: CLOUDLE/0.1 (SSAFY AI core project; https://lab.ssafy.com/s16/a11/ai_day/CLOUDLE)
+연속 호출 간격(초): [0.25, 0.25, 0.25]
+재시도: 최대 3회, 지연 1→2→4초, 429/5xx에서 Retry-After 존중
+같은 요청은 디스크 캐시(NF2002)

@@ -7,7 +7,7 @@
 ## 과제 필수 · 심화
 | ID | 구현 위치 | 검증 | 상태 |
 |---|---|---|---|
-| F2001 | `backend/data/items.csv`(152건) · `cloudle/data/items.py` | `test_f2001_*` | ✅ |
+| F2001 | `backend/rag-service/data/items.csv`(152건) · `cloudle/data/items.py` | `test_f2001_*` | ✅ |
 | F2002 | `cloudle/rag/indexing.py::index_items` | `test_f2002_*` | ✅ |
 | F2003 | `rag/prompts.py::P1` · `rag/collect.py::extract_queries` | `test_p1_*` | ✅ |
 | F2004 | `rag/collect.py::select_candidates` (P2, 품목 직접 문서 보존) | `test_p2_*` | ✅ |

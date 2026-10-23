@@ -7,9 +7,9 @@
 ## 1. 자동 테스트 (v2: 3개 서비스)
 | 대상 | 명령 | 결과 |
 |---|---|---|
-| rag-service (RAG·API·Streamlit UI·토큰 예산) | `cd backend/rag-service && python -m pytest -q` | **44 passed** |
-| api-gateway (세션·요청 제한·캐시·SSE·오류 형식) | `cd backend/api-gateway && pnpm test` | **6 passed** |
-| frontend | `pnpm exec tsc --noEmit && pnpm lint && pnpm build` | 통과 (8개 화면) |
+| rag-service (RAG·API·Streamlit UI·토큰 예산) | `cd backend/rag-service && python -m pytest -q` | **45 passed** (2026-10-23 재실행. 테스트가 `.env.local`의 GMS 키를 비우지 않아 LLM 호출 3건이 실패하던 것을 `tests/conftest.py`에서 키 3종을 비워 고침) |
+| api-gateway (세션·요청 제한·캐시·SSE·오류 형식) | `cd backend/api-gateway && pnpm test` | **15 passed** |
+| frontend | `pnpm exec tsc --noEmit && pnpm lint && pnpm build` | 통과 (`pnpm lint`·`pnpm build`, 2026-10-23) |
 
 테스트는 가짜 위키백과·가짜 엔진 포트로 돌아가 **네트워크·API 키 없이** 재현된다.
 
@@ -20,7 +20,7 @@
 | 나라 선택 → 핵심 지표만 조회 → "대기 오염은 왜?" → 위키백과 근거로 답 → 발견 노트 자동 저장 | ✅ |
 | Cloud Lab: 캔을 **마우스 플릭으로 던짐**(포물선 비행 확인) · 페트병 "대신 던져 줘" → 분석 → 구름 열기 → 결과·채팅 | ✅ |
 | Planet VS: 대한민국 vs 일본, 연도 슬라이더 2010 → 지표·차트 동기화 | ✅ (당시 결과 — Phase 8에서 기능 삭제) |
-| Eco Detective: 주장 검토(오프라인이라 판정 보류 + 관련 문장) · 같은 주장은 캐시로 1초 이내 | ✅ |
+| Eco Detective: 주장 검토(오프라인이라 판정 보류 + 관련 문장) · 같은 주장은 캐시로 1초 이내 | ✅ (당시 결과 — Phase 7에서 화면·게이트웨이 제거) |
 | 모바일·다크 모드, 콘솔 오류 | ✅ 0건 |
 
 ## 3. 비기능 요구사항

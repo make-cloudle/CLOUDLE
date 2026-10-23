@@ -1,0 +1,9 @@
+[1] kind=item_meta → 표시 '품목 메타데이터' · CLOUDLE 품목 메타데이터: 스마트폰
+[2] kind=user_upload → 표시 '업로드 문서' · 업로드 문서: 내-메모.txt
+[3] kind=wikipedia → 표시 '위키백과' · 위키백과: 스마트폰
+[4] kind=wikipedia → 표시 '위키백과' · 위키백과: 스마트폰
+[5] kind=wikipedia → 표시 '위키백과' · 위키백과: 스마트폰
+[6] kind=wikipedia → 표시 '위키백과' · 위키백과: Smartphone
+[7] kind=wikipedia → 표시 '위키백과' · 위키백과: 스마트폰
+[8] kind=guide → 표시 '배출 안내' · 소형가전·폐가전 배출 안내 (팀 요약)
+[9] kind=guide → 표시 '배출 안내' · 폐가전 무상 방문수거 서비스 — 신청·품목·준비 (e순환거버넌스, 정책브리핑)
