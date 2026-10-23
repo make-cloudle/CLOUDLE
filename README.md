@@ -43,6 +43,17 @@ cd frontend && pnpm dev:both                            # 웹 :3000(지구미) +
 휴대폰은 같은 와이파이에서 `http://<PC LAN IP>:3000`.
 과제 기본 UI(cmd, `.venv` 활성화 후): `cd backend\rag-service && streamlit run streamlit_app.py`
 
+## 🗂️ 데이터 출처와 이용 조건
+| 출처 | 쓰는 곳 | 이용 조건 |
+|---|---|---|
+| 위키백과 (MediaWiki API) | 품목·국가 설명 근거 | CC BY-SA 4.0 — 화면에 제목·URL·라이선스 표기 |
+| World Bank Indicators / What a Waste | 국가 지표 (PM2.5·인구·산림·폐기물) | CC BY 4.0 — 출처·연도·단위 표기 |
+| NASA EONET | 지구본 자연현상 | NASA 데이터 정책 (공개) |
+| Natural Earth | 국가 경계 | Public Domain |
+| 법제처 폐기물관리법, 정책브리핑(환경부·소방청), 한국환경공단, e순환거버넌스, 한국폐기물협회 | 분리배출 안내 문서(`backend/rag-service/data/docs/`) | 공공누리 제1유형은 출처표시 인용, 제4유형은 **사실만 새로 서술**, 법령은 보호 대상 아님 |
+
+자세한 대장과 사용하지 않은 출처의 사유는 [`docs/04-data/DATA_SOURCES.md`](docs/04-data/DATA_SOURCES.md). 수집 기록(제목·URL·라이선스·수집일)은 실행 중 `sources_ledger.jsonl`에 남고, 위키백과 요청은 간격 0.25초 이상·재시도·`User-Agent`에 프로젝트 정보를 넣어 보낸다.
+
 ## 📚 문서
 [기획서](docs/01-planning/PLAN.md) · [요구사항](docs/02-requirements/SRS.md) · [구현 매핑](docs/02-requirements/TRACEABILITY.md) · [아키텍처](docs/03-design/ARCHITECTURE.md) · [RAG 설계](docs/03-design/RAG_PIPELINE.md) · [데이터](docs/04-data/DATA_SOURCES.md) · [검증](docs/05-verification/VERIFICATION.md) · [구름 광장 리팩토링·트러블슈팅](docs/05-verification/REFACTOR_COMMUNITY.md) · [배포(Oracle Cloud + Docker)](docs/06-deploy/ORACLE_CLOUD.md) · [에이전트 하네스](AGENTS.md)
 
