@@ -92,7 +92,7 @@ Vercel 프로젝트 → Settings → Environment Variables:
 ## 7. 운영 팁·주의
 
 - **채팅 기록은 메모리**에 있어서 `docker compose restart gateway`나 서버 재시작 시 사라집니다. 인스턴스를 **2개 이상으로 늘리면 안 됩니다**(방 목록·소켓이 인스턴스마다 따로 놀음). 늘리려면 저장소·방송 어댑터를 Redis로 바꿔야 합니다(`backend/AGENTS.md` §2-1).
-- **게스트 이름:** 개발 때 "포트 = 지구미/예나"는 운영에서 꺼져 있고(`COMMUNITY_IDENTITIES` 비움), 사용자는 브라우저마다 `구름손님XXXX`(세션 ID 앞 4글자)로 보입니다. 식별은 세션 ID 전체라 앞 4글자가 같아도 다른 사람입니다. 닉네임 입력·로그인이 필요하면 `IdentityPort` 어댑터만 바꾸면 됩니다.
+- **게스트 이름:** 개발 때 "포트 = 지구미/예나"는 운영에서 꺼져 있고(`COMMUNITY_IDENTITIES` 비움), 사용자는 브라우저마다 `구름손님XXXX`(세션 ID 앞 4글자)로 보입니다. 식별은 세션 ID 전체라 앞 4글자가 같아도 다른 사람입니다. 방에 처음 참여할 때 닉네임을 직접 정할 수 있고(1~12자, 같은 방에서 겹치면 거절), 정한 이름은 브라우저에 기억됩니다. 서버를 재시작하면 서버 쪽 기억은 사라지지만 브라우저가 접속할 때 다시 알려 줍니다. 로그인이 필요하면 `IdentityPort` 어댑터만 바꾸면 됩니다.
 - **토큰 예산:** `GMS_KEY`를 비우면 LLM 없이 오프라인으로 동작합니다. 예산·사용량은 `rag_storage` 볼륨의 `llm_usage.json`에 남습니다(컨테이너를 다시 만들어도 유지). SSAFY GMS 키가 학교 밖 서버에서도 쓸 수 있는지는 확인이 필요합니다.
 - **스왑(1GB 서버용):** `sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile`
 - **Always Free 유휴 회수:** Oracle은 오랫동안 거의 쓰지 않는 Always Free 인스턴스를 회수할 수 있다고 안내합니다. 사용 정책을 확인하고, 중요한 데이터는 서버에만 두지 마세요(이 프로젝트의 서버 데이터는 재생성 가능한 색인과 사용량 기록뿐입니다).
