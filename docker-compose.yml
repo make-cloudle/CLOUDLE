@@ -43,7 +43,7 @@ services:
     environment:
       GMS_KEY: ${GMS_KEY:-}                 # 비우면 오프라인 모드(규칙·발췌)로 동작
       TOKEN_BUDGET: ${TOKEN_BUDGET:-70000}
-      WIKI_USER_AGENT: ${WIKI_USER_AGENT:-CLOUDLE/0.2 (education project)}
+      WIKI_USER_AGENT: ${WIKI_USER_AGENT:-CLOUDLE/0.2 (https://lab.ssafy.com/s16/a11/ai_day/CLOUDLE; SSAFY education project)}
     volumes:
       - rag_storage:/app/storage
 
