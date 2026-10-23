@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CloudMascot } from "@/entities/mascot/characters";
 import { type DictKey, useT } from "@/shared/lib/i18n";
+import { IconPause, IconPlay } from "@/shared/ui/icons";
 import { Button, buttonClass, Card, cx, Overline } from "@/shared/ui/primitives";
 import {
   type Board, type Cell, COLS, createBoard, type Ctx, MAX_TIME, resolveMove, ROWS, type Special, START_TIME, type Step,
@@ -35,6 +36,7 @@ export function TrashMatch() {
   const [gain, setGain] = useState<{ text: string; key: number } | null>(null);
   const [notice, setNotice] = useState("");
   const [newBest, setNewBest] = useState(false);
+  const [paused, setPaused] = useState(false);
 
   const ctx = useRef<Ctx>({ rng: Math.random, nextId: 1 });
   const board = useRef<Board>([]);
@@ -43,6 +45,7 @@ export function TrashMatch() {
   const timeLeft = useRef(START_TIME);
   const scoreRef = useRef(0);
   const phaseRef = useRef<"ready" | "playing" | "over">("ready");
+  const pausedRef = useRef(false);
   const drag = useRef<{ r: number; c: number; x: number; y: number } | null>(null);
   const boardEl = useRef<HTMLDivElement>(null);
   const bannerKey = useRef(0);
@@ -51,6 +54,8 @@ export function TrashMatch() {
 
   const finish = useCallback(() => {
     phaseRef.current = "over";
+    pausedRef.current = false;
+    setPaused(false);
     setPhase("over");
     setSelected(null);
     if (scoreRef.current > readBest()) { writeBest(scoreRef.current); setBest(scoreRef.current); setNewBest(true); }
@@ -60,7 +65,7 @@ export function TrashMatch() {
   useEffect(() => {
     if (phase !== "playing") return;
     const id = setInterval(() => {
-      if (busy.current) return;
+      if (busy.current || pausedRef.current) return;
       timeLeft.current = Math.max(0, timeLeft.current - 0.1);
       setTime(timeLeft.current);
       if (timeLeft.current <= 0) finish();
@@ -72,6 +77,7 @@ export function TrashMatch() {
     ctx.current = { rng: Math.random, nextId: 1 };
     board.current = createBoard(ctx.current);
     timeLeft.current = START_TIME; scoreRef.current = 0; phaseRef.current = "playing";
+    pausedRef.current = false; setPaused(false);
     busy.current = true;
     setScore(0); setTime(START_TIME); setSelected(null); setCombo(null); setNotice(""); setNewBest(false);
     setPhase("playing");
@@ -97,7 +103,7 @@ export function TrashMatch() {
   };
 
   const swap = async (a: Cell, b: Cell) => {
-    if (busy.current || phaseRef.current !== "playing") return;
+    if (busy.current || pausedRef.current || phaseRef.current !== "playing") return;
     busy.current = true;
     setSelected(null);
     const res = resolveMove(ctx.current, board.current, a, b);
@@ -134,8 +140,29 @@ export function TrashMatch() {
     if (timeLeft.current <= 0) finish();
   };
 
+  const setPause = (on: boolean) => {
+    if (phaseRef.current !== "playing" || pausedRef.current === on) return;
+    pausedRef.current = on;
+    setPaused(on);
+    if (on) { setSelected(null); drag.current = null; }
+  };
+
+  // 탭을 옮기거나 창을 가리면 자동으로 일시정지, P·Esc 키로 일시정지/계속
+  useEffect(() => {
+    const hidden = () => { if (document.hidden) setPause(true); };
+    const key = (e: KeyboardEvent) => {
+      if (e.key !== "Escape" && e.key.toLowerCase() !== "p") return;
+      if (phaseRef.current !== "playing" || e.ctrlKey || e.metaKey || e.altKey) return;
+      e.preventDefault();
+      setPause(!pausedRef.current);
+    };
+    document.addEventListener("visibilitychange", hidden);
+    window.addEventListener("keydown", key);
+    return () => { document.removeEventListener("visibilitychange", hidden); window.removeEventListener("keydown", key); };
+  }, []);
+
   const tap = (r: number, c: number) => {
-    if (busy.current || phaseRef.current !== "playing") return;
+    if (busy.current || pausedRef.current || phaseRef.current !== "playing") return;
     setFocus([r, c]);
     if (!selected) return setSelected([r, c]);
     if (selected[0] === r && selected[1] === c) return setSelected(null);
@@ -206,7 +233,14 @@ export function TrashMatch() {
           <div className="relative rounded-[20px] bg-surface p-3 shadow-soft">
             <div className="flex items-baseline justify-between text-[12px] font-semibold text-ink-2">
               <span>{t("pz_time")}</span>
-              <span className={cx("text-[15px] tabular-nums", low && "text-warn")}>{time.toFixed(1)}s</span>
+              <span className="flex items-center gap-2">
+                <span className={cx("text-[15px] tabular-nums", low && "text-warn")}>{time.toFixed(1)}s</span>
+                <button type="button" onClick={() => setPause(!paused)} disabled={phase !== "playing"} aria-pressed={paused}
+                  aria-label={paused ? t("pz_resume") : t("pz_pause")} title={`${paused ? t("pz_resume") : t("pz_pause")} (P)`}
+                  className="flex h-8 items-center gap-1 rounded-full bg-surface-2 px-3 text-[12px] font-semibold text-ink-2 hover:text-ink disabled:opacity-40">
+                  {paused ? <IconPlay size={14} /> : <IconPause size={14} />}{paused ? t("pz_resume") : t("pz_pause")}
+                </button>
+              </span>
             </div>
             <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-surface-2" role="progressbar" aria-valuemin={0} aria-valuemax={MAX_TIME} aria-valuenow={Math.round(time)} aria-label={t("pz_time")}>
               <div className={cx("h-full rounded-full transition-[width] duration-100 ease-linear", low ? "bg-warn" : "bg-sky")} style={{ width: `${(time / MAX_TIME) * 100}%` }} />
@@ -249,6 +283,14 @@ export function TrashMatch() {
               )}
               {notice && <div className="pointer-events-none absolute inset-x-0 bottom-3 z-10 flex justify-center"><span className="rounded-full bg-surface px-3 py-1 text-[12px] font-semibold shadow-soft">{notice}</span></div>}
 
+              {phase === "playing" && paused && (
+                <div role="dialog" aria-label={t("pz_paused")} className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-3 bg-surface p-6 text-center">
+                  <p className="text-[22px] font-extrabold">{t("pz_paused")}</p>
+                  <p className="text-[13px] text-ink-3">{t("pz_paused_hint")}</p>
+                  <Button variant="primary" size="lg" autoFocus onClick={() => setPause(false)}><IconPlay size={16} /> {t("pz_resume")}</Button>
+                  <Button variant="ghost" size="sm" onClick={start}>{t("pz_restart")}</Button>
+                </div>
+              )}
               {phase !== "playing" && (
                 <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-surface/90 p-6 text-center backdrop-blur-sm">
                   {phase === "over" && (
