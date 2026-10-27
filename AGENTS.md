@@ -80,4 +80,6 @@ Claude Code는 루트 `CLAUDE.md` → 이 파일을 읽고, 작업 위치에 따
 | 서브: `data-steward` | `.claude/agents/data-steward.md` | 데이터 출처·라이선스·수치 정확성 |
 | 서브: `qa-verifier` | `.claude/agents/qa-verifier.md` | 테스트·브라우저 시나리오·요구사항 대조 |
 
+> Codex용 서브 에이전트 정의는 [`.codex/agents/*.toml`](.codex/agents/)에 있다. `.claude/agents/*.md`와 같은 역할·규칙의 복사본이므로, 한쪽을 고치면 다른 쪽도 같이 고친다.
+
 위임 원칙: 한 영역 안의 작업은 해당 주 에이전트가 직접 처리하고, **여러 파일을 넓게 조사하거나 독립적으로 검증할 때만** 서브 에이전트를 쓴다. 서브 에이전트 결과는 루트 에이전트가 확인한 뒤 반영한다.
