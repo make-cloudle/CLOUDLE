@@ -11,6 +11,7 @@ import { EarthService } from "./modules/earth/earth.service";
 import { HealthController } from "./modules/health/health.controller";
 import { LabController } from "./modules/lab/lab.controller";
 import { LabService } from "./modules/lab/lab.service";
+import { RankingModule } from "./modules/ranking/ranking.module";
 import { SharedModule } from "./shared/shared.module";
 
 @Module({
@@ -22,6 +23,7 @@ import { SharedModule } from "./shared/shared.module";
     }),
     SharedModule,
     CommunityModule,
+    RankingModule,
   ],
   controllers: [HealthController, EarthController, LabController],
   providers: [

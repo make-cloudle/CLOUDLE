@@ -31,6 +31,9 @@ services:
       # 운영에서는 개발용 "포트 = 사람" 매핑을 끈다 (Origin에 포트가 없어 어차피 매칭되지 않음)
       COMMUNITY_IDENTITIES: ""
       RATE_LIMIT_PER_MIN: ${RATE_LIMIT_PER_MIN:-20}
+      RANKING_FILE: /app/storage/ranking.json
+    volumes:
+      - gateway_storage:/app/storage   # 게임 랭킹 (지우면 순위가 초기화됨)
     depends_on:
       rag:
         condition: service_healthy
@@ -51,3 +54,4 @@ volumes:
   caddy_data:
   caddy_config:
   rag_storage:
+  gateway_storage:
