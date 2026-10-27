@@ -311,6 +311,22 @@ export const DICT = {
   pz_next: { ko: "다음 스테이지", en: "Next stage", ja: "次のステージ", zh: "下一关" },
   pz_retry: { ko: "다시 도전", en: "Try again", ja: "もう一度挑戦", zh: "再次挑战" },
   pz_to_trail: { ko: "트레일로", en: "Back to trail", ja: "トレイルへ", zh: "返回闯关" },
+  pz_gate_title: { ko: "닉네임을 정하고 입장하세요", en: "Pick a nickname to enter", ja: "ニックネームを決めて入場", zh: "取个昵称再进入" },
+  pz_gate_desc: { ko: "트레일은 랭킹에 이름이 표시돼요. 로그인 없이 닉네임만 정하면 돼요. 일반 모드는 닉네임 없이 할 수 있어요.", en: "Your name shows on the Trail ranking. No login needed — just a nickname. Classic mode needs none.", ja: "トレイルはランキングに名前が表示されます。ログイン不要でニックネームだけ決めればOK。ノーマルモードはニックネーム不要です。", zh: "闯关模式会在排行榜上显示你的名字。无需登录，只需取个昵称。普通模式无需昵称。" },
+  pz_gate_ph: { ko: "랭킹에 표시될 이름", en: "Name shown in the ranking", ja: "ランキングに表示する名前", zh: "排行榜上显示的名字" },
+  pz_gate_hint: { ko: "1~12자 · 이미 랭킹에서 쓰는 이름은 쓸 수 없어요. 구름 광장 닉네임과 같은 이름을 써요.", en: "1–12 characters · names already in the ranking can't be used. The same name is used in Cloud Square chat.", ja: "1〜12文字・ランキングで使用中の名前は使えません。雲の広場と同じ名前を使います。", zh: "1–12 个字符 · 排行榜中已被使用的名字不能再用。与云广场聊天使用同一昵称。" },
+  pz_gate_enter: { ko: "입장하기", en: "Enter", ja: "入場する", zh: "进入" },
+  pz_gate_checking: { ko: "닉네임을 확인하는 중…", en: "Checking your nickname…", ja: "ニックネームを確認中…", zh: "正在确认昵称…" },
+  pz_rank: { ko: "랭킹", en: "Ranking", ja: "ランキング", zh: "排行榜" },
+  pz_rank_all: { ko: "전체", en: "All", ja: "全体", zh: "全部" },
+  pz_rank_loading: { ko: "불러오는 중…", en: "Loading…", ja: "読み込み中…", zh: "加载中…" },
+  pz_rank_offline: { ko: "서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요.", en: "Couldn't reach the server. Please try again shortly.", ja: "サーバーに接続できませんでした。しばらくしてからもう一度お試しください。", zh: "无法连接服务器，请稍后再试。" },
+  pz_rank_empty: { ko: "아직 기록이 없어요. 스테이지를 깨면 첫 번째로 이름이 올라가요!", en: "No records yet. Clear a stage to be the first!", ja: "まだ記録がありません。ステージをクリアして一番乗りに！", zh: "还没有记录。通关就能成为第一名！" },
+  pz_rank_no_record: { ko: "{name}님은 이 난이도 기록이 아직 없어요.", en: "{name} has no record here yet.", ja: "{name}さんはまだこの難易度の記録がありません。", zh: "{name} 在此难度还没有记录。" },
+  pz_rank_me: { ko: "나", en: "me", ja: "自分", zh: "我" },
+  pz_rank_meta: { ko: "{cleared}스테이지 클리어 · {score}점", en: "{cleared} stages cleared · {score} pts", ja: "{cleared}ステージクリア・{score}点", zh: "通关 {cleared} 关 · {score} 分" },
+  pz_rank_note: { ko: "별 합계 → 클리어 수 → 점수 순이에요. 로그인이 없는 명예 랭킹이라 점수는 기기에서 보낸 값이에요.", en: "Ranked by total stars, then stages cleared, then score. It's an honor-system ranking (no login), so scores come from your device.", ja: "星の合計 → クリア数 → スコア順です。ログインのない名誉ランキングで、スコアは端末から送られた値です。", zh: "按星数总和 → 通关数 → 分数排序。这是无需登录的荣誉榜，分数由设备上传。" },
+  pz_rank_failed: { ko: "랭킹 등록에 실패했어요. 진행은 이 기기에 저장됐어요.", en: "Couldn't post to the ranking. Your progress is saved on this device.", ja: "ランキング登録に失敗しました。進行はこの端末に保存されています。", zh: "排行榜登记失败。进度已保存在此设备上。" },
 } satisfies Dict;
 
 export type DictKey = keyof typeof DICT;

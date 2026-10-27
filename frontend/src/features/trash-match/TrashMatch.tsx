@@ -29,8 +29,8 @@ type Props = {
   stage?: Stage;
   onBack?: () => void;
   onNext?: () => void;
-  /** 스테이지를 깼을 때 받은 별 */
-  onCleared?: (stars: number) => void;
+  /** 스테이지를 깼을 때 받은 별과 최종 점수(남은 시간 보너스 포함) */
+  onCleared?: (r: { stars: number; final: number }) => void;
 };
 
 /** 분리배출 퍼즐: 같은 쓰레기 3개 이상을 맞춰 분리수거. 콤보 배수 · 특수 블록 · 시간 회복 · (트레일) 오염 씻기·목표·벌점. */
@@ -83,7 +83,7 @@ export function TrashMatch({ stage, onBack, onNext, onCleared }: Props = {}) {
       const final = win ? finalScore(stage, scoreRef.current, timeLeft.current) : scoreRef.current;
       const stars = win ? starsFor(stage, final) : 0;
       setResult({ cleared: win, stars, bonus: final - scoreRef.current, final });
-      if (win) cleared.current?.(stars);
+      if (win) cleared.current?.({ stars, final });
     } else if (scoreRef.current > readBest()) { writeBest(scoreRef.current); setBest(scoreRef.current); setNewBest(true); }
   }, [stage]);
 

@@ -5,6 +5,7 @@ import { create } from "zustand";
 import type { BucketEntry } from "@/entities/eco-bucket/types";
 import type { AuthoredMessage, ChatMessage, Member, Memo, Reaction, Reactions, Room } from "@/entities/talk/types";
 import { apiBase, request, sessionId } from "@/shared/api/client";
+import { rememberNickname, savedNickname } from "@/shared/lib/nickname";
 import { mergeMessages } from "./timeline";
 
 /**
@@ -44,14 +45,6 @@ type State = {
 
 let socket: Socket | null = null;
 
-/** 닉네임은 이 브라우저에만 기억한다 (로그인이 없으므로). 서버에는 접속·참여할 때 알려 준다. */
-const NICK_KEY = "cloudle.nickname";
-export function savedNickname(): string {
-  try { return localStorage.getItem(NICK_KEY) ?? ""; } catch { return ""; }
-}
-function rememberNickname(name: string) {
-  try { localStorage.setItem(NICK_KEY, name); } catch { /* 저장소를 못 쓰는 환경 — 이번 방문에만 적용 */ }
-}
 
 async function call<T>(event: string, body: unknown): Promise<T> {
   const s = connect();

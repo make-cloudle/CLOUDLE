@@ -194,6 +194,17 @@ export const chat = (item_id: string, question: string, lang: Lang) =>
     body: JSON.stringify({ item_id, question, lang }),
   });
 
+/* ── 게임 랭킹 (분리수거 트레일) ─────────────────────────────────── */
+export type RankRow = { rank: number; nickname: string; cleared: number; stars: number; score: number };
+export type RankBoard = { level: string; total: number; rows: RankRow[]; me: RankRow | null; nickname: string | null };
+const json = (body: unknown): RequestInit => ({ method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+
+/** 트레일 입장 조건: 닉네임 등록. 다른 사람이 쓰는 이름이면 ApiError(code "nickname_taken") */
+export const claimNickname = (nickname: string) => request<{ nickname: string }>("/api/ranking/claim", json({ nickname }));
+export const submitScore = (level: string, stage: number, score: number, stars: number) =>
+  request<RankBoard & { improved: boolean }>("/api/ranking/score", json({ level, stage, score, stars }));
+export const getRanking = (level: string) => request<RankBoard>(`/api/ranking?level=${encodeURIComponent(level)}`);
+
 export const chatHistory = (item_id: string) =>
   request<{ history: ChatMessage[] }>(`/api/chat/${encodeURIComponent(item_id)}`);
 

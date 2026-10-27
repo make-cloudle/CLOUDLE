@@ -8,8 +8,9 @@ import { type Paper, useLoop } from "@/features/cloud-lab/model";
 import { useDiscoveries } from "@/features/discovery/model";
 import { useEcoBucket } from "@/features/eco-bucket/model";
 import { Avatar, ChatRoom, RoomIcon } from "@/features/talk/ChatRoom";
-import { ensureConnected, getRooms, savedNickname, TalkError, useTalk } from "@/features/talk/model";
+import { ensureConnected, getRooms, TalkError, useTalk } from "@/features/talk/model";
 import { fill, useT } from "@/shared/lib/i18n";
+import { savedNickname } from "@/shared/lib/nickname";
 import { IconArrow } from "@/shared/ui/icons";
 import { Alert, Button, Input, Overline, Tag } from "@/shared/ui/primitives";
 
