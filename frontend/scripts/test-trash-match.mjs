@@ -194,13 +194,31 @@ ok("씻긴 칸은 이번 이동에서 사라지지 않고, 그 칸으로 다음 
   assert.equal(r2.steps[0].cleared.length, 3);
 });
 
-ok("오염 3개로만 이뤄진 줄: 모두 씻기기만 하고 같은 이동에서 곧바로 사라지지 않는다", () => {
+ok("오염 3개로만 이뤄진 줄: 모두 씻기고, 깨끗해진 같은 색 3개가 곧바로 다시 맞춰져 사라진다 (연쇄 ×2)", () => {
   const { c, b } = dirtySetup([[3, 0, 1], [3, 1, 1], [4, 2, 1]]);
   const res = E.resolveMove(c, b, [3, 2], [4, 2]);
-  assert.equal(res.steps[0].cleared.length, 0);
-  assert.equal(res.steps[0].washed.length, 3);
-  assert.equal(res.steps.filter((x) => !x.shuffle).length, 1, "연쇄로 이어지지 않는다");
+  const [s0, s1] = res.steps;
+  assert.equal(s0.cleared.length, 0); assert.equal(s0.washed.length, 3);
+  assert.ok(s1 && !s1.shuffle, "씻긴 뒤 같은 줄이 다시 맞춰진다");
+  assert.equal(s1.washed.length, 0); assert.equal(s1.cleared.length, 3);
+  assert.equal(s1.chain, 2); assert.equal(s1.multiplier, 2);
+  assert.ok(s1.points >= 3 * 10 * 2, "두 번째 연쇄이므로 배수 ×2");
+  assert.equal(res.steps.reduce((n, st) => n + st.kindsCleared[5], 0), 3, "모으기 목표에는 사라진 3개만 센다");
   assert.equal(res.dirtLeft, 0);
+});
+
+ok("찌든 때(2겹) 3개: 두 번 씻기고 세 번째에 사라진다", () => {
+  const { c, b } = dirtySetup([[3, 0, 2], [3, 1, 2], [4, 2, 2]]);
+  const res = E.resolveMove(c, b, [3, 2], [4, 2]);
+  const real = res.steps.filter((st) => !st.shuffle);
+  assert.deepEqual(real.slice(0, 3).map((st) => [st.washed.length, st.cleared.length]), [[3, 0], [3, 0], [0, 3]]);
+  assert.deepEqual(real[0].washed.map((w) => w.dirt), [1, 1, 1]); assert.deepEqual(real[1].washed.map((w) => w.dirt), [0, 0, 0]);
+});
+
+ok("더러운 칸이 일부만 낀 줄: 깨끗한 칸은 사라지고, 더러운 칸만 씻겨 남는다 (남은 칸이 혼자라 더 이어지지 않는다)", () => {
+  const { c, b } = dirtySetup([[3, 0, 1], [3, 1, 1]]); // 3개 중 2개가 더럽다
+  const [s0] = E.resolveMove(c, b, [3, 2], [4, 2]).steps;
+  assert.equal(s0.washed.length, 2); assert.equal(s0.cleared.length, 1);
 });
 
 ok("찌든 때(2겹): 한 번 맞추면 1겹이 남고, 두 번째에야 깨끗해진다", () => {
@@ -268,9 +286,7 @@ ok("오염이 있는 판 시뮬레이션: 빈칸·중복 id 없음, 끝난 보�
       const ids = out.final.flat().map((t) => t.id);
       assert.equal(new Set(ids).size, ids.length, "id 중복 없음");
       assert.ok(out.final.flat().every((t) => t && (t.dirt ?? 0) >= 0 && (t.dirt ?? 0) <= 2));
-      // 끝난 보드에 남는 줄은 이번 이동에서 (그 줄의 칸이 모두 더럽거나 새 특수 블록이 낀) 씻기기만 한 줄뿐이어야 한다 (다음 성공 이동에서 함께 사라진다)
-      const washedNow = new Set(out.steps.flatMap((st) => st.washed.map((w) => w.id)));
-      E.findRuns(out.final).forEach((run) => assert.ok(run.cells.every(([r, q]) => washedNow.has(out.final[r][q].id) || out.final[r][q].special), "맞춰진 채 남은 줄은 방금 씻기기만 한 줄(새로 만든 특수 블록 포함)뿐이어야 한다"));
+      assert.equal(E.findRuns(out.final).length, 0, "끝난 보드에 맞춰진 줄이 남지 않는다");
       assert.ok(E.hasMove(out.final), "새로 만들 수 있는 줄이 있다");
       b = out.final;
     }
