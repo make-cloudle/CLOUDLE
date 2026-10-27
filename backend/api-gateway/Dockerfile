@@ -16,6 +16,8 @@ RUN corepack enable
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile --prod && pnpm store prune
 COPY --from=build /app/dist ./dist
+# 랭킹 파일 보관 디렉터리 (볼륨을 마운트해도 node 사용자가 쓸 수 있게 미리 만들어 소유권을 준다)
+RUN mkdir -p /app/storage && chown node:node /app/storage
 # node 이미지의 비루트 사용자
 USER node
 EXPOSE 4000

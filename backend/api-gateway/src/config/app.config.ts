@@ -8,6 +8,8 @@ export interface AppConfig {
   rateLimitPerMin: number;
   /** Community 개발용 신원: "프론트 포트:닉네임" 목록 */
   communityIdentities: string;
+  /** 랭킹 저장 파일 (비우면 메모리에만 — 테스트용) */
+  rankingFile: string;
 }
 
 const list = (v: string) => v.split(",").map((s) => s.trim().replace(/\/$/, "")).filter(Boolean);
@@ -19,6 +21,7 @@ export const appConfig = (): AppConfig => ({
   allowLanOrigins: (process.env.ALLOW_LAN_ORIGINS ?? (process.env.NODE_ENV === "production" ? "false" : "true")) === "true",
   rateLimitPerMin: Number(process.env.RATE_LIMIT_PER_MIN ?? 20),
   communityIdentities: process.env.COMMUNITY_IDENTITIES ?? "3000:지구미,3001:예나",
+  rankingFile: process.env.RANKING_FILE ?? "storage/ranking.json",
 });
 
 const LAN_HOST = /^(localhost|127\.0\.0\.1|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+)$/;
