@@ -1,10 +1,10 @@
-import { TrashMatch } from "@/features/trash-match/TrashMatch";
+import { TrashHub } from "@/features/trash-match/TrashHub";
 
-/** 분리수거 게임: 같은 쓰레기를 3개 이상 맞추는 퍼즐 (콤보 배수 · 특수 블록 · 시간 회복) */
+/** 분리수거 게임: 일반 모드(기존 방식)와 트레일(쉬움·보통·어려움 각 10 스테이지) */
 export default function GamePage() {
   return (
     <div className="pt-8 lg:pt-12">
-      <TrashMatch />
+      <TrashHub />
     </div>
   );
 }

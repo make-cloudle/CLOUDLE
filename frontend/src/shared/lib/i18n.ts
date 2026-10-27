@@ -268,6 +268,49 @@ export const DICT = {
   pz_paused: { ko: "일시정지 중", en: "Paused", ja: "一時停止中", zh: "已暂停" },
   pz_paused_hint: { ko: "시간이 멈췄어요. P 또는 Esc 키로도 계속할 수 있어요.", en: "The timer is stopped. Press P or Esc to resume.", ja: "タイマーが止まっています。PまたはEscキーでも再開できます。", zh: "计时已停止。也可以按 P 或 Esc 键继续。" },
   pz_restart: { ko: "처음부터 다시", en: "Restart", ja: "最初から", zh: "重新开始" },
+  pz_mode: { ko: "게임 모드", en: "Game mode", ja: "ゲームモード", zh: "游戏模式" },
+  pz_mode_classic: { ko: "일반 모드", en: "Classic mode", ja: "ノーマルモード", zh: "普通模式" },
+  pz_mode_classic_d: { ko: "기존 방식 · 끝없이 점수 도전", en: "Original · chase a high score against the clock", ja: "従来の遊び方・制限時間内でハイスコアに挑戦", zh: "原版玩法 · 限时挑战最高分" },
+  pz_mode_trail: { ko: "트레일", en: "Trail", ja: "トレイル", zh: "闯关" },
+  pz_mode_trail_d: { ko: "스테이지를 하나씩 깨며 올라가요", en: "Clear stages one by one", ja: "ステージを一つずつクリア", zh: "逐关挑战" },
+  pz_trail_desc: { ko: "쉬움·보통·어려움 각 10 스테이지. 목표를 채우면 다음 길이 열려요.", en: "10 stages each in Easy, Normal and Hard. Meet the goals to open the next one.", ja: "やさしい・ふつう・むずかしいで各10ステージ。目標を達成すると次が開きます。", zh: "简单、普通、困难各 10 关。完成目标即可解锁下一关。" },
+  pz_level: { ko: "난이도", en: "Difficulty", ja: "難易度", zh: "难度" },
+  pz_lv_easy: { ko: "쉬움", en: "Easy", ja: "やさしい", zh: "简单" },
+  pz_lv_normal: { ko: "보통", en: "Normal", ja: "ふつう", zh: "普通" },
+  pz_lv_hard: { ko: "어려움", en: "Hard", ja: "むずかしい", zh: "困难" },
+  pz_lvd_easy: { ko: "벌점 없음. 처음엔 오염도 없고, 뒤로 갈수록 음식물이 묻은 쓰레기가 조금씩 나와요.", en: "No penalties. No grime at first; food-stained trash slowly appears later.", ja: "ペナルティなし。最初は汚れもなく、進むと食べ物の付いたごみが少しずつ出ます。", zh: "无扣分。起初没有污渍，之后会慢慢出现沾了食物的垃圾。" },
+  pz_lvd_normal: { ko: "헛손질하면 점수가 깎이고, 오염을 방치하면 움직일 때마다 칸 수만큼 깎여요.", en: "Wrong swaps cost points, and leftover grime drains points every move.", ja: "ハズレの入れ替えで減点、汚れを放置すると手ごとに減点されます。", zh: "无效交换会扣分，放任污渍不管则每步都会扣分。" },
+  pz_lvd_hard: { ko: "벌점이 더 크고 틀리면 시간도 줄어요. 찌든 때는 두 번 씻어야 하고, 시간은 더 짧아요.", en: "Bigger penalties, wrong swaps cost time too. Caked-on grime needs two washes, and the clock is tighter.", ja: "ペナルティが大きく、ミスで時間も減ります。こびりついた汚れは2回洗う必要があり、時間も短めです。", zh: "扣分更多，无效交换还会扣时间。顽固污渍要洗两次，时间也更短。" },
+  pz_level_rules: { ko: "규칙", en: "Rules", ja: "ルール", zh: "规则" },
+  pz_rule_clear: { ko: "제한 시간 안에 목표(점수 · 모으기 · 씻기)를 모두 채우면 클리어예요.", en: "Meet every goal (score, collect, wash) before time runs out to clear the stage.", ja: "制限時間内に目標（スコア・集める・洗う）をすべて達成するとクリアです。", zh: "在限时内完成全部目标（得分、收集、清洗）即可通关。" },
+  pz_rule_wash: { ko: "음식물이 묻은 쓰레기는 3개 이상 맞추면 사라지지 않고 한 번 씻겨요(WASH!). 깨끗해진 뒤 다음 이동에서 한 번 더 맞춰야 사라져요.", en: "Food-stained trash is washed, not removed, when matched in 3+ (WASH!). Match it again on a later move to clear it.", ja: "食べ物の付いたごみは3つ以上そろえても消えず、一度洗われます（WASH!）。きれいになったら次の手でもう一度そろえると消えます。", zh: "沾了食物的垃圾凑齐 3 个以上时不会消失，而是先被洗一次（WASH!）。变干净后，在之后的一步里再凑齐才会消除。" },
+  pz_rule_penalty: { ko: "난이도가 오를수록 벌점이 커져요: 아무것도 안 맞는 교환(오분리)과, 오염을 남겨 둔 채 움직이는 것(칸당 감점).", en: "Penalties grow with difficulty: swaps that match nothing, and moving while grime is left on the board (per tile).", ja: "難易度が上がるほど減点が増えます：何もそろわない入れ替え、汚れを残したまま動くこと（1マスごと）。", zh: "难度越高扣分越多：什么都没凑成的交换，以及棋盘上留着污渍时继续走（按格扣分）。" },
+  pz_rule_stars: { ko: "클리어하면 남은 시간이 보너스 점수가 되고, 최종 점수가 목표의 1.0배·1.3배·1.6배면 별 1·2·3개예요.", en: "Clear with time left to earn bonus points; a final score of 1.0×, 1.3× or 1.6× the goal earns 1, 2 or 3 stars.", ja: "クリア時の残り時間はボーナス点になり、最終スコアが目標の1.0倍・1.3倍・1.6倍で星1・2・3個です。", zh: "通关后剩余时间会换算成奖励分；最终得分达到目标的 1.0 / 1.3 / 1.6 倍可得 1 / 2 / 3 颗星。" },
+  pz_trail_progress: { ko: "{n}/{total} 스테이지 클리어", en: "{n}/{total} stages cleared", ja: "{n}/{total} ステージクリア", zh: "已通关 {n}/{total} 关" },
+  pz_stage: { ko: "스테이지 {n}", en: "Stage {n}", ja: "ステージ {n}", zh: "第 {n} 关" },
+  pz_stage_desc: { ko: "목표를 모두 채우면 클리어예요. 오염된 쓰레기는 두 번 맞춰야 사라져요.", en: "Meet all goals to clear. Stained trash must be matched twice.", ja: "目標をすべて達成するとクリア。汚れたごみは2回そろえると消えます。", zh: "完成所有目标即可通关。沾污的垃圾要凑两次才会消失。" },
+  pz_stage_ready: { ko: "목표를 확인하고 시작하세요. 시간이 줄어드는 건 입력을 기다릴 때만이에요.", en: "Check the goals, then start. The clock only runs while you wait for your move.", ja: "目標を確認してスタート。時間は入力待ちのときだけ減ります。", zh: "先看目标再开始。只有在等待你操作时才会计时。" },
+  pz_open: { ko: "도전 가능", en: "Open", ja: "挑戦可能", zh: "可挑战" },
+  pz_locked: { ko: "잠김 — 앞 스테이지를 먼저 깨세요", en: "Locked — clear the previous stage first", ja: "ロック中 — 前のステージをクリアしてください", zh: "未解锁 — 请先通过上一关" },
+  pz_goals: { ko: "목표 점수", en: "Target", ja: "目標スコア", zh: "目标分数" },
+  pz_pts: { ko: "점", en: "pts", ja: "点", zh: "分" },
+  pz_goal_score: { ko: "점수 {have} / {need}", en: "Score {have} / {need}", ja: "スコア {have} / {need}", zh: "得分 {have} / {need}" },
+  pz_goal_wash: { ko: "오염 씻기 {have} / {need}", en: "Wash grime {have} / {need}", ja: "汚れを洗う {have} / {need}", zh: "清洗污渍 {have} / {need}" },
+  pz_goal_collect: { ko: "{kind} 모으기 {have} / {need}", en: "Collect {kind} {have} / {need}", ja: "{kind}を集める {have} / {need}", zh: "收集{kind} {have} / {need}" },
+  pz_penalty_rule: { ko: "벌점: 오분리 −{miss}점 · 오염 방치 칸당 −{leak}점(최대 8칸)", en: "Penalty: wrong swap −{miss} · leftover grime −{leak} per tile (max 8)", ja: "減点：ミス −{miss}点・汚れ放置 1マス −{leak}点（最大8マス）", zh: "扣分：无效交换 −{miss} · 残留污渍每格 −{leak}（最多 8 格）" },
+  pz_penalty_time: { ko: "오분리 시 시간 −{s}초", en: "wrong swap also −{s}s", ja: "ミス時は時間も −{s}秒", zh: "无效交换另扣 {s} 秒" },
+  pz_penalty_none: { ko: "벌점 없음 — 마음 편히 연습해요", en: "No penalties — relax and practice", ja: "減点なし — 気軽に練習しよう", zh: "不扣分 — 放心练习" },
+  pz_dirty: { ko: "오염", en: "Grime", ja: "汚れ", zh: "污渍" },
+  pz_dirt1: { ko: "음식물이 묻은 쓰레기 — 3개 이상 맞추면 사라지지 않고 한 번 씻겨요(WASH!). 깨끗해진 뒤 다시 맞추면 사라져요.", en: "Food-stained trash — matching it in 3+ washes it once (WASH!) instead of removing it. Match it again once clean.", ja: "食べ物の付いたごみ — 3つ以上そろえると消えずに一度洗われます（WASH!）。きれいになったらもう一度そろえると消えます。", zh: "沾了食物的垃圾 — 凑齐 3 个以上只会洗一次（WASH!），变干净后再凑齐才会消失。" },
+  pz_dirt2: { ko: "찌든 때 — 두 번 씻어야 깨끗해져요. 그다음에 한 번 더 맞춰야 사라져요.", en: "Caked-on grime — needs two washes before it is clean, then one more match to clear.", ja: "こびりついた汚れ — 2回洗うときれいになり、その後もう一度そろえると消えます。", zh: "顽固污渍 — 要洗两次才干净，之后再凑一次才会消失。" },
+  pz_wash: { ko: "WASH!", en: "WASH!", ja: "WASH!", zh: "WASH!" },
+  pz_clear: { ko: "스테이지 클리어!", en: "Stage clear!", ja: "ステージクリア！", zh: "通关成功！" },
+  pz_fail: { ko: "시간 종료 — 목표를 못 채웠어요", en: "Time's up — goals not met", ja: "タイムアップ — 目標未達成", zh: "时间到 — 未完成目标" },
+  pz_fail_hint: { ko: "오염은 먼저 씻어 두고, 헛손질은 줄여 보세요.", en: "Wash grime early and avoid wasted swaps.", ja: "汚れは早めに洗い、ミスを減らしてみましょう。", zh: "尽早清洗污渍，减少无效交换。" },
+  pz_bonus: { ko: "남은 시간 보너스 +{n}점", en: "Time bonus +{n}", ja: "残り時間ボーナス +{n}点", zh: "剩余时间奖励 +{n} 分" },
+  pz_next: { ko: "다음 스테이지", en: "Next stage", ja: "次のステージ", zh: "下一关" },
+  pz_retry: { ko: "다시 도전", en: "Try again", ja: "もう一度挑戦", zh: "再次挑战" },
+  pz_to_trail: { ko: "트레일로", en: "Back to trail", ja: "トレイルへ", zh: "返回闯关" },
 } satisfies Dict;
 
 export type DictKey = keyof typeof DICT;
@@ -276,8 +319,8 @@ export function translate(lang: Lang, key: DictKey): string {
   return DICT[key][lang] ?? DICT[key].ko;
 }
 
-export function fill(text: string, vars: Record<string, string>) {
-  return text.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? "");
+export function fill(text: string, vars: Record<string, string | number>) {
+  return text.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ""));
 }
 
 export function useT() {
