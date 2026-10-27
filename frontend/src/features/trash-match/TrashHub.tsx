@@ -1,8 +1,11 @@
 "use client";
 
 import { useState, useSyncExternalStore } from "react";
+import { submitScore } from "@/shared/api/client";
 import { type DictKey, fill, useT } from "@/shared/lib/i18n";
 import { cx, Card, Overline } from "@/shared/ui/primitives";
+import { NicknameGate } from "./NicknameGate";
+import { RankingCard } from "./RankingCard";
 import { clearedCount, emptyTrail, isUnlocked, readTrail, record, totalStars, type Trail, writeTrail } from "./progress";
 import { getStage, LEVELS, type Level, STAGES_PER_LEVEL } from "./stages";
 import { Stars, TrashMatch } from "./TrashMatch";
@@ -18,12 +21,19 @@ export function TrashHub() {
   const [playing, setPlaying] = useState<number | null>(null); // 지금 하는 스테이지 번호
   const hydrated = useSyncExternalStore(noop, () => true, () => false); // 진행은 브라우저에만 있다 (서버 렌더와 어긋나지 않게)
   const [saved, setSaved] = useState<Trail | null>(null);
+  const [entered, setEntered] = useState(false); // 트레일 입장 = 닉네임 등록 완료
+  const [rankVersion, setRankVersion] = useState(0); // 새 기록을 올리면 랭킹을 다시 받는다
+  const [rankFailed, setRankFailed] = useState(false);
   const trail = saved ?? (hydrated ? readTrail() : emptyTrail());
 
-  const saveStars = (lv: Level, no: number, stars: number) => {
-    const next = record(trail, lv, no, stars);
+  const onCleared = (lv: Level, no: number, r: { stars: number; final: number }) => {
+    const next = record(trail, lv, no, r.stars);
     writeTrail(next);
     setSaved(next);
+    // 별은 이 브라우저에 먼저 저장하고, 랭킹 등록이 실패해도 진행은 잃지 않는다
+    submitScore(lv, no, r.final, r.stars)
+      .then(() => { setRankFailed(false); setRankVersion((v) => v + 1); })
+      .catch(() => setRankFailed(true));
   };
 
   if (mode === "trail" && playing !== null) {
@@ -33,7 +43,7 @@ export function TrashHub() {
         key={`${level}-${playing}`}
         stage={stage}
         onBack={() => setPlaying(null)}
-        onCleared={(stars) => saveStars(level, playing, stars)}
+        onCleared={(r) => onCleared(level, playing, r)}
         onNext={playing < STAGES_PER_LEVEL ? () => setPlaying(playing + 1) : undefined}
       />
     );
@@ -51,7 +61,9 @@ export function TrashHub() {
         ))}
       </div>
 
-      {mode === "classic" ? <TrashMatch /> : <TrailMap level={level} setLevel={setLevel} trail={trail} onPlay={setPlaying} />}
+      {mode === "classic" ? <TrashMatch />
+        : !entered ? <NicknameGate onEnter={() => setEntered(true)} />
+        : <TrailMap level={level} setLevel={setLevel} trail={trail} onPlay={setPlaying} rankVersion={rankVersion} rankFailed={rankFailed} />}
     </div>
   );
 }
@@ -65,7 +77,9 @@ const LEVEL_TONE: Record<Level, { ring: string; dot: string; soft: string }> = {
 const X = [22, 58, 78, 50, 24, 40, 74, 56, 26, 52];
 const STEP = 96;
 
-function TrailMap({ level, setLevel, trail, onPlay }: { level: Level; setLevel: (l: Level) => void; trail: Trail; onPlay: (no: number) => void }) {
+function TrailMap({ level, setLevel, trail, onPlay, rankVersion, rankFailed }: {
+  level: Level; setLevel: (l: Level) => void; trail: Trail; onPlay: (no: number) => void; rankVersion: number; rankFailed: boolean;
+}) {
   const t = useT();
   const done = clearedCount(trail, level);
   const tone = LEVEL_TONE[level];
@@ -132,6 +146,8 @@ function TrailMap({ level, setLevel, trail, onPlay }: { level: Level; setLevel: 
       </section>
 
       <aside className="flex flex-col gap-4">
+        {rankFailed && <p role="alert" className="rounded-2xl bg-warn-soft px-3 py-2 text-[12px] text-danger">{t("pz_rank_failed")}</p>}
+        <RankingCard level={level} version={rankVersion} />
         <Card>
           <h3 className="text-[15px] font-extrabold">{t(`pz_lv_${level}` as DictKey)} · {t("pz_level_rules")}</h3>
           <ul className="mt-3 flex flex-col gap-2 text-[13px] leading-relaxed text-ink-2">
