@@ -75,10 +75,13 @@ const clone = (b: Board): Board => b.map((row) => row.slice());
 /* ── 매치 찾기 ─────────────────────────────────────────────────── */
 type Run = { kind: number; dir: "h" | "v"; cells: Cell[] };
 
-/** skip: 이번 이동에서 이미 씻긴 칸의 id. 같은 이동 안에서는 다시 맞춰지지 않는다. */
-export function findRuns(b: Board, skip?: ReadonlySet<number>): Run[] {
+/** 줄을 이루는 타일 id로 만든 열쇠 — 같은 칸에 다른 타일이 와서 만든 줄과 구분한다 */
+const idKey = (b: Board, r: Run) => `${r.dir}:${r.cells.map(([a, c]) => b[a][c]?.id).join(",")}`;
+
+/** blocked: 이번 이동에서 오염을 씻은 바로 그 줄(타일 id 기준). 같은 줄이 다시 잡혀 곧바로 사라지는 것만 막는다. */
+export function findRuns(b: Board, blocked?: ReadonlySet<string>): Run[] {
   const runs: Run[] = [];
-  const kindAt = (r: number, c: number) => { const t = b[r][c]; return !t || skip?.has(t.id) ? -2 : t.kind; };
+  const kindAt = (r: number, c: number) => { const t = b[r][c]; return t ? t.kind : -2; };
   const scan = (len: number, at: (i: number) => Cell, dir: "h" | "v") => {
     let start = 0;
     for (let i = 1; i <= len; i++) {
@@ -93,7 +96,7 @@ export function findRuns(b: Board, skip?: ReadonlySet<number>): Run[] {
   };
   for (let r = 0; r < ROWS; r++) scan(COLS, (i) => [r, i], "h");
   for (let c = 0; c < COLS; c++) scan(ROWS, (i) => [i, c], "v");
-  return runs;
+  return blocked?.size ? runs.filter((run) => !blocked.has(idKey(b, run))) : runs;
 }
 
 /**
@@ -209,10 +212,11 @@ export function resolveMove(ctx: Ctx, board: Board, a: Cell, b: Cell): { steps: 
   const steps: Step[] = [];
   let chain = 0;
   let pending = forced;
-  const washedIds = new Set<number>(); // 이번 이동에서 이미 씻긴 칸
+  const washedIds = new Set<number>(); // 이번 이동에서 이미 씻긴 칸 (폭발로는 다시 지우지 않는다)
+  const blocked = new Set<string>(); // 씻은 바로 그 줄 (타일이 그대로면 다시 잡지 않는다)
 
   for (;;) {
-    const runs = findRuns(cur, washedIds);
+    const runs = findRuns(cur, blocked);
     if (runs.length === 0 && pending.length === 0) break;
     chain++;
 
@@ -268,16 +272,23 @@ export function resolveMove(ctx: Ctx, board: Board, a: Cell, b: Cell): { steps: 
     const keep = created.filter((m) => !expanded.has(key(m.r, m.c)) && !fired.has(key(m.r, m.c)));
     keep.forEach((m) => clear.delete(key(m.r, m.c)));
 
+    const runCells = new Set<number>();
+    runs.forEach((run) => run.cells.forEach(([r, c]) => runCells.add(key(r, c))));
     // 오염: 지워질 칸이 더러우면 사라지는 대신 한 겹 씻기고 남는다. 이미 씻긴 칸은 이번 이동에서는 건드리지 않는다.
     const washed: Step["washed"] = [];
     for (const [k, [r, c]] of [...clear.entries()]) {
       const t = cur[r][c]!;
-      if (washedIds.has(t.id)) { clear.delete(k); continue; }
+      // 씻긴 칸은 폭발로는 다시 지우지 않지만, 새로 만들어진 줄(다른 타일이 떨어져 이룬 줄)에 들어가면 정상적으로 맞춰진다
+      if (washedIds.has(t.id) && !runCells.has(k)) { clear.delete(k); continue; }
       if ((t.dirt ?? 0) > 0) {
         clear.delete(k);
         washed.push({ id: t.id, r, c, dirt: (t.dirt ?? 1) - 1 });
         washedIds.add(t.id);
       }
+    }
+    if (washed.length) {
+      const ids = new Set(washed.map((w) => w.id));
+      runs.forEach((run) => { if (run.cells.some(([r, c]) => ids.has(cur[r][c]!.id))) blocked.add(idKey(cur, run)); });
     }
     const kindsCleared = Array<number>(KINDS).fill(0);
     clear.forEach(([r, c]) => { const t = cur[r][c]; if (t && t.kind >= 0) kindsCleared[t.kind]++; });

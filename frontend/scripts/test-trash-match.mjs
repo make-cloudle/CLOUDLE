@@ -268,9 +268,9 @@ ok("오염이 있는 판 시뮬레이션: 빈칸·중복 id 없음, 끝난 보�
       const ids = out.final.flat().map((t) => t.id);
       assert.equal(new Set(ids).size, ids.length, "id 중복 없음");
       assert.ok(out.final.flat().every((t) => t && (t.dirt ?? 0) >= 0 && (t.dirt ?? 0) <= 2));
-      // 끝난 보드에 남는 줄은 이번 이동에서 씻긴 칸이 낀 줄뿐이어야 한다 (다음 성공 이동에서 함께 사라진다)
+      // 끝난 보드에 남는 줄은 이번 이동에서 (그 줄의 칸이 모두 더럽거나 새 특수 블록이 낀) 씻기기만 한 줄뿐이어야 한다 (다음 성공 이동에서 함께 사라진다)
       const washedNow = new Set(out.steps.flatMap((st) => st.washed.map((w) => w.id)));
-      E.findRuns(out.final).forEach((run) => assert.ok(run.cells.some(([r, q]) => washedNow.has(out.final[r][q].id)), "씻긴 칸과 무관한 줄이 남았다"));
+      E.findRuns(out.final).forEach((run) => assert.ok(run.cells.every(([r, q]) => washedNow.has(out.final[r][q].id) || out.final[r][q].special), "맞춰진 채 남은 줄은 방금 씻기기만 한 줄(새로 만든 특수 블록 포함)뿐이어야 한다"));
       assert.ok(E.hasMove(out.final), "새로 만들 수 있는 줄이 있다");
       b = out.final;
     }
@@ -292,6 +292,21 @@ ok("남아 있는 줄(씻긴 칸이 낀 줄)은 헛손질을 성공으로 만들
   const res = E.resolveMove(c, b, [3, 2], [4, 2]);
   assert.ok(res);
   assert.ok(res.steps[0].cleared.some(([r]) => r === 7), "남아 있던 줄도 사라진다");
+});
+
+
+ok("씻긴 칸 위로 새 칸이 떨어져 이룬 새 줄은 같은 이동에서 정상적으로 사라진다 (화면 버그 재현)", () => {
+  const c = mk(); const b = base(c);
+  // 5행에 5 5 5 (가운데는 더러움). 위의 (4,0)·(4,2)도 5라서, 씻기고 나면 떨어져 내려와 5 W 5 가 된다
+  set(b, [[5, 0], [5, 1], [6, 2], [4, 0], [4, 2]], 5);
+  b[5][1] = { ...b[5][1], dirt: 1 };
+  assert.equal(E.findRuns(b).length, 0, "사전조건");
+  const res = E.resolveMove(c, b, [5, 2], [6, 2]);
+  const [s0, s1] = res.steps;
+  assert.equal(s0.washed.length, 1); assert.equal(s0.cleared.length, 2);
+  assert.ok(s1 && !s1.shuffle, "새 줄이 연쇄로 이어진다");
+  assert.ok(s1.cleared.some(([r, q]) => r === 5 && q === 1), "씻겨 깨끗해진 칸도 새 줄에 들어가 사라진다");
+  assert.equal(s1.washed.length, 0);
 });
 
 /* ── 스테이지 · 벌점 · 별 · 진행 저장 ───────────────────────────────────── */
