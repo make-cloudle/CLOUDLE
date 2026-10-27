@@ -325,6 +325,22 @@ ok("씻긴 칸 위로 새 칸이 떨어져 이룬 새 줄은 같은 이동에서
   assert.equal(s1.washed.length, 0);
 });
 
+
+ok("사용자 제보 화면: 세로 3줄이 서로 다른 오염 겹(1·2·1)이면 → 모두 씻기고, 이어서 깨끗한 2칸은 사라지고 남은 한 칸도 마저 씻긴다", () => {
+  const c = mk(); const b = base(c);
+  b[0][0] = { ...b[0][0], kind: 3, dirt: 1 }; b[1][0] = { ...b[1][0], kind: 3, dirt: 2 };
+  b[2][0] = { ...b[2][0], kind: 0 }; b[2][1] = { ...b[2][1], kind: 3, dirt: 1 };
+  assert.equal(E.findRuns(b).length, 0, "사전조건");
+  const res = E.resolveMove(c, b, [2, 0], [2, 1]);
+  const real = res.steps.filter((st) => !st.shuffle);
+  assert.deepEqual(real[0].washed.map((w) => [w.r, w.c, w.dirt]), [[0, 0, 0], [1, 0, 1], [2, 0, 0]]);
+  assert.equal(real[0].cleared.length, 0);
+  assert.deepEqual(real[1].washed.map((w) => [w.r, w.c, w.dirt]), [[1, 0, 0]]);
+  assert.deepEqual(real[1].cleared.map(([r, q]) => [r, q]).sort(), [[0, 0], [2, 0]]);
+  assert.equal(E.findRuns(res.final).length, 0, "맞춰진 채 남는 줄이 없다");
+  assert.equal(res.dirtLeft, 0);
+});
+
 /* ── 스테이지 · 벌점 · 별 · 진행 저장 ───────────────────────────────────── */
 ok("스테이지 30개: 레벨별 10개, 목표·시간·종류가 올바르고 난이도가 오른다", () => {
   assert.equal(S.allStages().length, 30);
