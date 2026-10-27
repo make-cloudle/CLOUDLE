@@ -45,7 +45,23 @@ function SpecialMark({ special }: { special: Exclude<Special, null> }) {
   );
 }
 
-export function TileFace({ kind, special }: { kind: number; special: Special }) {
+/** 음식물이 묻은 모습: 1겹은 얼룩 몇 점, 2겹(찌든 때)은 더 크고 진한 얼룩 + 말라붙은 금. 색뿐 아니라 모양으로도 구분된다 */
+function Grime({ level }: { level: 1 | 2 }) {
+  const c = level === 2 ? "#6b4a2b" : "#a9743f";
+  return (
+    <svg viewBox="0 0 32 32" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
+      <g fill={c} opacity={level === 2 ? 0.92 : 0.78}>
+        <path d="M4 9c1-4 6-5 8-2 2 2 1 6-2 7-3 1-7-1-6-5z" />
+        <path d="M21 20c2-3 7-3 8 0 1 3-1 6-4 6s-5-3-4-6z" />
+        <circle cx="25" cy="8" r="2.2" /><circle cx="9" cy="25" r="1.8" /><circle cx="17" cy="14" r="1.4" />
+        {level === 2 && <><path d="M12 19c2-2 6-1 6 2s-3 5-6 3-2-4 0-5z" /><circle cx="27" cy="14" r="2" /><circle cx="5" cy="17" r="1.6" /></>}
+      </g>
+      {level === 2 && <path d="M3 29l6-5M27 3l-4 6" stroke="#3f2a16" strokeWidth="1.6" strokeLinecap="round" fill="none" />}
+    </svg>
+  );
+}
+
+export function TileFace({ kind, special, dirt = 0 }: { kind: number; special: Special; dirt?: number }) {
   if (special === "color") {
     return <span className="relative flex h-full w-full items-center justify-center rounded-[14px] bg-white shadow-soft ring-2 ring-[#ffd25e]"><SpecialMark special="color" /></span>;
   }
@@ -53,6 +69,7 @@ export function TileFace({ kind, special }: { kind: number; special: Special }) 
     <span className={`relative flex h-full w-full items-center justify-center rounded-[14px] shadow-soft ${special ? "ring-2 ring-white" : ""}`} style={{ background: KIND_BG[kind] }}>
       <span className={special ? "opacity-40" : ""}><KindGlyph kind={kind} /></span>
       {special && <SpecialMark special={special} />}
+      {dirt > 0 && <Grime level={dirt >= 2 ? 2 : 1} />}
     </span>
   );
 }
